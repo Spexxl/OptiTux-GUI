@@ -1,0 +1,17 @@
+[package]
+name = "optitux_gui"
+version = "0.1.0"
+edition = "2021"
+authors = ["OptiTux Contributors"]
+description = "A graphical tool to manage OptiScaler on Linux."
+
+[dependencies]
+gtk = { version = "0.7.3", package = "gtk4", features = ["v4_12"] }
+libadwaita = "0.5"
+tokio = { version = "1.36", features = ["full"] }
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+directories = "5.0"
+zip = "0.6"
+anyhow = "1.0"
