@@ -1,9 +1,9 @@
 [package]
 name = "optitux_gui"
 version = "0.1.0"
-edition = "2021"
+edition = "2026"
 authors = ["OptiTux Contributors"]
-description = "A graphical tool to manage OptiScaler on Linux."
+description = "Optiscaler interface manager for Linux."
 
 [dependencies]
 gtk = { version = "0.7.3", package = "gtk4", features = ["v4_12"] }
