@@ -1,20 +1,16 @@
 use crate::core::models::{Game, GamePlatform};
 use directories::UserDirs;
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 
 #[derive(Deserialize)]
-struct HeroicInstalled {
-    installed: Vec<HeroicGame>,
-}
-
-#[derive(Deserialize)]
 struct HeroicGame {
-    #[serde(rename = "appName")]
+    #[serde(rename = "app_name")]
     app_name: String,
     title: String,
-    #[serde(rename = "installPath")]
+    #[serde(rename = "install_path")]
     install_path: String,
 }
 
@@ -23,14 +19,13 @@ pub fn scan() -> Vec<Game> {
     let config_paths = get_heroic_config_paths();
 
     for config_path in config_paths {
-        let installed_json = config_path.join("installed.json");
-        if !installed_json.exists() {
+        if !config_path.exists() {
             continue;
         }
 
-        if let Ok(content) = fs::read_to_string(installed_json) {
-            if let Ok(data) = serde_json::from_str::<HeroicInstalled>(&content) {
-                for hg in data.installed {
+        if let Ok(content) = fs::read_to_string(&config_path) {
+            if let Ok(data) = serde_json::from_str::<HashMap<String, HeroicGame>>(&content) {
+                for (_, hg) in data {
                     games.push(Game {
                         app_id: hg.app_name,
                         name: hg.title,
@@ -52,20 +47,12 @@ fn get_heroic_config_paths() -> Vec<PathBuf> {
     if let Some(user_dirs) = UserDirs::new() {
         let home = user_dirs.home_dir();
 
-        let native_path = home.join(".config").join("heroic");
-        if native_path.exists() {
-            paths.push(native_path);
-        }
-
-        let flatpak_path = home
-            .join(".var")
-            .join("app")
-            .join("com.heroicgameslauncher.hgl")
-            .join("config")
-            .join("heroic");
-        if flatpak_path.exists() {
-            paths.push(flatpak_path);
-        }
+        paths.push(home.join(".config/heroic/installed.json"));
+        paths.push(home.join(".config/heroic/legendaryConfig/legendary/installed.json"));
+        paths.push(home.join(".config/heroic/gog_store/installed.json"));
+        paths.push(home.join(".var/app/com.heroicgameslauncher.hgl/config/heroic/installed.json"));
+        paths.push(home.join(".var/app/com.heroicgameslauncher.hgl/config/heroic/legendaryConfig/legendary/installed.json"));
+        paths.push(home.join(".var/app/com.heroicgameslauncher.hgl/config/heroic/gog_store/installed.json"));
     }
 
     paths

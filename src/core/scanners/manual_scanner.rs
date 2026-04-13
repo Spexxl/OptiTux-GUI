@@ -23,7 +23,6 @@ pub fn scan(folder_path: &str) -> Vec<Game> {
             }
         }
     }
-
     games
 }
 

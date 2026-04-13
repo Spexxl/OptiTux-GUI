@@ -6,14 +6,14 @@ use log::info;
 fn main() {
     env_logger::init();
     
-    info!("Starting Steam Scanner test...");
+    info!("Starting Heroic Scanner test...");
     
-    let games = core::scanners::steam_scanner::scan();
+    let games = core::scanners::heroic_scanner::scan();
     
     if games.is_empty() {
-        println!("No Steam games found.");
+        println!("No Heroic games found.");
     } else {
-        println!("Found {} Steam games:", games.len());
+        println!("Found {} Heroic games:", games.len());
         for game in games {
             println!("---------------------------------");
             println!("Name: {}", game.name);
