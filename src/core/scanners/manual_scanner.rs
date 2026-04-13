@@ -1,9 +1,9 @@
 use crate::core::models::{Game, GamePlatform};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use walkdir::WalkDir;
 
-const MIN_EXE_SIZE_BYTES: u64 = 1024 * 1024;
+const MIN_EXE_SIZE_BYTES: u64 = 248 * 248;
 
 pub fn scan(folder_path: &str) -> Vec<Game> {
     let mut games = Vec::new();
@@ -11,6 +11,13 @@ pub fn scan(folder_path: &str) -> Vec<Game> {
 
     if !root.exists() || !root.is_dir() {
         return games;
+    }
+
+    if is_game_folder(root) {
+        if let Some(game) = scan_game_folder(root) {
+            games.push(game);
+            return games;
+        }
     }
 
     if let Ok(entries) = fs::read_dir(root) {
@@ -23,7 +30,24 @@ pub fn scan(folder_path: &str) -> Vec<Game> {
             }
         }
     }
+
     games
+}
+
+fn is_game_folder(path: &Path) -> bool {
+    if let Ok(entries) = fs::read_dir(path) {
+        for entry in entries.flatten() {
+            let p = entry.path();
+            if p.is_file() {
+                if let Some(ext) = p.extension() {
+                    if ext.to_string_lossy().to_lowercase() == "exe" {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    false
 }
 
 fn scan_game_folder(game_folder: &Path) -> Option<Game> {
