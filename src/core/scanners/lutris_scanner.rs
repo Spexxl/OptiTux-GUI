@@ -6,7 +6,6 @@ use std::path::{Path, PathBuf};
 
 #[derive(Deserialize)]
 struct LutrisGameConfig {
-    name: Option<String>,
     game: Option<LutrisGameDetails>,
 }
 
@@ -46,20 +45,8 @@ fn get_lutris_config_paths() -> Vec<PathBuf> {
     if let Some(user_dirs) = UserDirs::new() {
         let home = user_dirs.home_dir();
 
-        let native_path = home.join(".config").join("lutris");
-        if native_path.exists() {
-            paths.push(native_path);
-        }
-
-        let flatpak_path = home
-            .join(".var")
-            .join("app")
-            .join("net.lutris.Lutris")
-            .join("config")
-            .join("lutris");
-        if flatpak_path.exists() {
-            paths.push(flatpak_path);
-        }
+        paths.push(home.join(".local/share/lutris"));
+        paths.push(home.join(".var/app/net.lutris.Lutris/data/lutris"));
     }
 
     paths
@@ -69,7 +56,6 @@ fn parse_lutris_yaml(path: &Path) -> Option<Game> {
     let content = fs::read_to_string(path).ok()?;
     let config: LutrisGameConfig = serde_yaml::from_str(&content).ok()?;
 
-    let name = config.name?;
     let exe_path_str = config.game?.exe?;
     let exe_path = Path::new(&exe_path_str);
     
@@ -79,9 +65,27 @@ fn parse_lutris_yaml(path: &Path) -> Option<Game> {
         exe_path_str.clone()
     };
 
+    let filename = path.file_stem()?.to_string_lossy().to_string();
+    let mut name_parts: Vec<&str> = filename.split('-').collect();
+    if name_parts.len() > 1 {
+        name_parts.pop(); 
+    }
+    
+    let display_name = name_parts.join(" ")
+        .split_whitespace()
+        .map(|word| {
+            let mut c = word.chars();
+            match c.next() {
+                None => String::new(),
+                Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+            }
+        })
+        .collect::<Vec<String>>()
+        .join(" ");
+
     Some(Game {
-        app_id: path.file_stem()?.to_string_lossy().to_string(),
-        name,
+        app_id: filename.clone(),
+        name: if display_name.is_empty() { filename } else { display_name },
         install_path,
         executable_path: Some(exe_path_str),
         platform: GamePlatform::Lutris,
