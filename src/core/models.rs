@@ -13,6 +13,7 @@ pub struct Game {
     pub name: String,
     pub install_path: String,
     pub executable_path: Option<String>,
+    pub upscalars: Vec<String>,
     pub platform: GamePlatform,
     pub app_id: String,
 }

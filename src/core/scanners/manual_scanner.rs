@@ -52,6 +52,7 @@ fn is_game_folder(path: &Path) -> bool {
 
 fn scan_game_folder(game_folder: &Path) -> Option<Game> {
     let mut best_exe = None;
+    let mut target_upscalars = Vec::new();
 
     for entry in WalkDir::new(game_folder)
         .max_depth(4)
@@ -75,8 +76,10 @@ fn scan_game_folder(game_folder: &Path) -> Option<Game> {
                         }
 
                         if let Some(parent_dir) = path.parent() {
-                            if has_upscaler_dll_nearby(parent_dir) {
+                            let upscalers = get_upscalers_nearby(parent_dir);
+                            if !upscalers.is_empty() {
                                 best_exe = Some(path.to_path_buf());
+                                target_upscalars = upscalers;
                                 break;
                             }
                         }
@@ -108,6 +111,7 @@ fn scan_game_folder(game_folder: &Path) -> Option<Game> {
             name: game_name,
             install_path,
             executable_path: Some(exe_path.to_string_lossy().to_string()),
+            upscalars: target_upscalars,
             platform: GamePlatform::Custom,
         })
     } else {
@@ -115,21 +119,23 @@ fn scan_game_folder(game_folder: &Path) -> Option<Game> {
     }
 }
 
-fn has_upscaler_dll_nearby(dir: &Path) -> bool {
+fn get_upscalers_nearby(dir: &Path) -> Vec<String> {
+    let mut upscalers = Vec::new();
     if let Ok(entries) = fs::read_dir(dir) {
         for entry in entries.flatten() {
             let file_name = entry.file_name().to_string_lossy().to_lowercase();
-            
-            if file_name == "nvngx.dll"
-                || file_name == "libxess.dll"
-                || file_name.contains("ffx_fsr2")
-                || file_name.contains("ffx_fsr3")
-            {
-                return true;
+            if file_name.contains("nvngx") {
+                if !upscalers.contains(&"DLSS".to_string()) { upscalers.push("DLSS".to_string()); }
+            }
+            if file_name.contains("libxess") {
+                if !upscalers.contains(&"XeSS".to_string()) { upscalers.push("XeSS".to_string()); }
+            }
+            if file_name.contains("ffx") || file_name.contains("fsr") || file_name.contains("fidelityfx") {
+                if !upscalers.contains(&"FSR".to_string()) { upscalers.push("FSR".to_string()); }
             }
         }
     }
-    false
+    upscalers
 }
 
 fn is_trash_executable(name: &str) -> bool {

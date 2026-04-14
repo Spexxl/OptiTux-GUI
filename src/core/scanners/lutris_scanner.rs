@@ -83,11 +83,36 @@ fn parse_lutris_yaml(path: &Path) -> Option<Game> {
         .collect::<Vec<String>>()
         .join(" ");
 
+    let mut upscalars = Vec::new();
+    if let Some(parent) = exe_path.parent() {
+        upscalars = get_upscalers_nearby(parent);
+    }
+
     Some(Game {
         app_id: filename.clone(),
         name: if display_name.is_empty() { filename } else { display_name },
         install_path,
         executable_path: Some(exe_path_str),
+        upscalars,
         platform: GamePlatform::Lutris,
     })
+}
+
+fn get_upscalers_nearby(dir: &Path) -> Vec<String> {
+    let mut upscalers = Vec::new();
+    if let Ok(entries) = fs::read_dir(dir) {
+        for entry in entries.flatten() {
+            let file_name = entry.file_name().to_string_lossy().to_lowercase();
+            if file_name.contains("nvngx") {
+                if !upscalers.contains(&"DLSS".to_string()) { upscalers.push("DLSS".to_string()); }
+            }
+            if file_name.contains("libxess") {
+                if !upscalers.contains(&"XeSS".to_string()) { upscalers.push("XeSS".to_string()); }
+            }
+            if file_name.contains("ffx") || file_name.contains("fsr") || file_name.contains("fidelityfx") {
+                if !upscalers.contains(&"FSR".to_string()) { upscalers.push("FSR".to_string()); }
+            }
+        }
+    }
+    upscalers
 }

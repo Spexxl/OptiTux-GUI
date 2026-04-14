@@ -29,16 +29,22 @@ pub fn scan() -> Vec<Game> {
             if let Ok(data) = serde_json::from_str::<HashMap<String, HeroicGame>>(&content) {
                 for (_, hg) in data {
                     let mut exec_path = None;
+                    let mut upscalars = Vec::new();
                     
                     if let Some(rel_exec) = hg.executable {
                         let full_path = Path::new(&hg.install_path).join(rel_exec);
                         if full_path.exists() {
                             exec_path = Some(full_path.to_string_lossy().to_string());
+                            if let Some(parent) = full_path.parent() {
+                                upscalars = get_upscalers_nearby(parent);
+                            }
                         }
                     }
 
                     if exec_path.is_none() {
-                        exec_path = find_best_executable(Path::new(&hg.install_path));
+                        let (found_exe, found_ups) = find_best_executable(Path::new(&hg.install_path));
+                        exec_path = found_exe;
+                        upscalars = found_ups;
                     }
 
                     games.push(Game {
@@ -46,6 +52,7 @@ pub fn scan() -> Vec<Game> {
                         name: hg.title,
                         install_path: hg.install_path,
                         executable_path: exec_path,
+                        upscalars,
                         platform: GamePlatform::Heroic,
                     });
                 }
@@ -55,12 +62,14 @@ pub fn scan() -> Vec<Game> {
     games
 }
 
-fn find_best_executable(root: &Path) -> Option<String> {
-    if !root.exists() { return None; }
+fn find_best_executable(root: &Path) -> (Option<String>, Vec<String>) {
     let mut best_exe = None;
+    let target_upscalars = Vec::new();
+
+    if !root.exists() { return (None, target_upscalars); }
 
     for entry in WalkDir::new(root)
-        .max_depth(3)
+        .max_depth(4)
         .into_iter()
         .flatten()
     {
@@ -75,8 +84,9 @@ fn find_best_executable(root: &Path) -> Option<String> {
                         if metadata.len() < MIN_EXE_SIZE_BYTES { continue; }
                         
                         if let Some(parent) = path.parent() {
-                            if has_upscaler_dll_nearby(parent) {
-                                return Some(path.to_string_lossy().to_string());
+                            let upscalers = get_upscalers_nearby(parent);
+                            if !upscalers.is_empty() {
+                                return (Some(path.to_string_lossy().to_string()), upscalers);
                             }
                         }
                         if best_exe.is_none() {
@@ -87,19 +97,26 @@ fn find_best_executable(root: &Path) -> Option<String> {
             }
         }
     }
-    best_exe
+    (best_exe, target_upscalars)
 }
 
-fn has_upscaler_dll_nearby(dir: &Path) -> bool {
+fn get_upscalers_nearby(dir: &Path) -> Vec<String> {
+    let mut upscalers = Vec::new();
     if let Ok(entries) = fs::read_dir(dir) {
         for entry in entries.flatten() {
             let file_name = entry.file_name().to_string_lossy().to_lowercase();
-            if file_name == "nvngx.dll" || file_name == "libxess.dll" || file_name.contains("ffx_fsr") {
-                return true;
+            if file_name.contains("nvngx") {
+                if !upscalers.contains(&"DLSS".to_string()) { upscalers.push("DLSS".to_string()); }
+            }
+            if file_name.contains("libxess") {
+                if !upscalers.contains(&"XeSS".to_string()) { upscalers.push("XeSS".to_string()); }
+            }
+            if file_name.contains("ffx") || file_name.contains("fsr") || file_name.contains("fidelityfx") {
+                if !upscalers.contains(&"FSR".to_string()) { upscalers.push("FSR".to_string()); }
             }
         }
     }
-    false
+    upscalers
 }
 
 fn is_trash_executable(name: &str) -> bool {

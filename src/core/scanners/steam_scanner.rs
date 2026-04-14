@@ -35,7 +35,9 @@ pub fn scan() -> Vec<Game> {
                     if file_name.starts_with("appmanifest_") && file_name.ends_with(".acf") {
                         if let Some(mut game) = parse_manifest(&path, &steamapps_path) {
                             if !is_steam_tool(&game.name) && Path::new(&game.install_path).exists() {
-                                game.executable_path = find_best_executable(Path::new(&game.install_path));
+                                let (exe, upscalars) = find_best_executable(Path::new(&game.install_path));
+                                game.executable_path = exe;
+                                game.upscalars = upscalars;
                                 games_map.insert(game.app_id.clone(), game);
                             }
                         }
@@ -48,11 +50,12 @@ pub fn scan() -> Vec<Game> {
     games_map.into_values().collect()
 }
 
-fn find_best_executable(root: &Path) -> Option<String> {
+fn find_best_executable(root: &Path) -> (Option<String>, Vec<String>) {
     let mut best_exe = None;
+    let target_upscalars = Vec::new();
 
     for entry in WalkDir::new(root)
-        .max_depth(3)
+        .max_depth(4)
         .into_iter()
         .flatten()
     {
@@ -67,8 +70,9 @@ fn find_best_executable(root: &Path) -> Option<String> {
                         if metadata.len() < MIN_EXE_SIZE_BYTES { continue; }
                         
                         if let Some(parent) = path.parent() {
-                            if has_upscaler_dll_nearby(parent) {
-                                return Some(path.to_string_lossy().to_string());
+                            let upscalers = get_upscalers_nearby(parent);
+                            if !upscalers.is_empty() {
+                                return (Some(path.to_string_lossy().to_string()), upscalers);
                             }
                         }
                         if best_exe.is_none() {
@@ -79,19 +83,26 @@ fn find_best_executable(root: &Path) -> Option<String> {
             }
         }
     }
-    best_exe
+    (best_exe, target_upscalars)
 }
 
-fn has_upscaler_dll_nearby(dir: &Path) -> bool {
+fn get_upscalers_nearby(dir: &Path) -> Vec<String> {
+    let mut upscalers = Vec::new();
     if let Ok(entries) = fs::read_dir(dir) {
         for entry in entries.flatten() {
             let file_name = entry.file_name().to_string_lossy().to_lowercase();
-            if file_name == "nvngx.dll" || file_name == "libxess.dll" || file_name.contains("ffx_fsr") {
-                return true;
+            if file_name.contains("nvngx") {
+                if !upscalers.contains(&"DLSS".to_string()) { upscalers.push("DLSS".to_string()); }
+            }
+            if file_name.contains("libxess") {
+                if !upscalers.contains(&"XeSS".to_string()) { upscalers.push("XeSS".to_string()); }
+            }
+            if file_name.contains("ffx") || file_name.contains("fsr") || file_name.contains("fidelityfx") {
+                if !upscalers.contains(&"FSR".to_string()) { upscalers.push("FSR".to_string()); }
             }
         }
     }
-    false
+    upscalers
 }
 
 fn is_trash_executable(name: &str) -> bool {
@@ -158,5 +169,5 @@ fn parse_manifest(manifest_path: &Path, steamapps_path: &Path) -> Option<Game> {
     let install_dir = Regex::new(r#"("installdir"|"InstallDir")\s+"([^"]+)""#).ok()?
         .captures(&content).and_then(|cap| cap.get(2)).map(|m| m.as_str().to_string())?;
     let full_install_path = steamapps_path.join("common").join(install_dir).to_string_lossy().to_string();
-    Some(Game { app_id, name, install_path: full_install_path, executable_path: None, platform: GamePlatform::Steam })
+    Some(Game { app_id, name, install_path: full_install_path, executable_path: None, upscalars: vec![], platform: GamePlatform::Steam })
 }
