@@ -5,12 +5,15 @@ use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-const GITHUB_API_URL: &str = "https://api.github.com/repos/optiscaler/OptiScaler/releases";
+const GITHUB_API_URL_OFFICIAL: &str = "https://api.github.com/repos/optiscaler/OptiScaler/releases";
+const GITHUB_API_URL_PRE_RELEASE: &str = "https://api.github.com/repos/Spexxl/OptiTux-Database/releases";
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Release {
     pub tag_name: String,
     pub assets: Vec<Asset>,
+    #[serde(default)]
+    pub prerelease: bool,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -28,10 +31,28 @@ impl GitHubClient {
             .user_agent("OptiTux-GUI")
             .build()?;
 
-        let response = client.get(GITHUB_API_URL).send().await?;
-        let releases = response.json::<Vec<Release>>().await?;
-        
-        Ok(releases)
+        let mut all_releases = Vec::new();
+
+        if let Ok(response) = client.get(GITHUB_API_URL_OFFICIAL).send().await {
+            if let Ok(releases) = response.json::<Vec<Release>>().await {
+                all_releases.extend(releases);
+            }
+        }
+
+        if let Ok(response) = client.get(GITHUB_API_URL_PRE_RELEASE).send().await {
+            if let Ok(mut db_releases) = response.json::<Vec<Release>>().await {
+                for r in &mut db_releases {
+                    r.prerelease = true;
+                }
+                all_releases.extend(db_releases);
+            }
+        }
+
+        if all_releases.is_empty() {
+            return Err(anyhow!("Failed to fetch releases from both Official and Database repositories. API limit or network issue."));
+        }
+
+        Ok(all_releases)
     }
 
     pub async fn download_asset(asset: &Asset, target_dir: &Path) -> Result<PathBuf> {
