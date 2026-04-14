@@ -41,7 +41,6 @@ impl GitHubClient {
 
         if let Ok(response) = client.get(GITHUB_API_URL_PRE_RELEASE).send().await {
             if let Ok(mut db_releases) = response.json::<Vec<Release>>().await {
-                // Filter out the INT8 specific release so it doesn't appear as OptiScaler
                 db_releases.retain(|r| r.tag_name != "INT8");
                 for r in &mut db_releases {
                     r.prerelease = true;

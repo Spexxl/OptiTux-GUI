@@ -19,17 +19,17 @@ impl ProfileGenerator {
         let ini_content = format!(
             r#"; OptiTux-GUI Auto Generated Configuration
 
-[Upscalers]
-Dx11Upscaler={dx11}
-Dx12Upscaler={dx12}
-VulkanUpscaler={vk}
+            [Upscalers]
+            Dx11Upscaler={dx11}
+            Dx12Upscaler={dx12}
+            VulkanUpscaler={vk}
 
-[FSR]
-UpscalerIndex={ffx_backend}
+            [FSR]
+            UpscalerIndex={ffx_backend}
 
-[Spoofing]
-Dxgi={dxgi_override}
-"#
+            [Spoofing]
+            Dxgi={dxgi_override}
+            "#
         );
 
         let ini_path = game_dir.join("OptiScaler.ini");

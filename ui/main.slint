@@ -10,8 +10,10 @@ export component MainWindow inherits Window {
     callback request-decrement();
 
     VerticalBox {
-        alignment: center;
+        alignment: LayoutAlignment.center;
         spacing: 12px;
+        x: 1px;
+        y: 2px;
 
         Text {
             text: "Counter: " + root.counter;
@@ -21,12 +23,17 @@ export component MainWindow inherits Window {
 
         Button {
             text: "Increment";
-            clicked => { root.request-increment(); }
+            clicked => {
+                root.request-increment();
+            }
         }
 
         Button {
+            enabled: true;
             text: "Decrement";
-            clicked => { root.request-decrement(); }
+            clicked => {
+                root.request-decrement();
+            }
         }
     }
 }
