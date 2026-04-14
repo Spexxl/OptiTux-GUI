@@ -1,0 +1,32 @@
+import { Button, VerticalBox } from "std-widgets.slint";
+
+export component MainWindow inherits Window {
+    title: "OptiTux-GUI";
+    preferred-width: 800px;
+    preferred-height: 600px;
+
+    in-out property <int> counter: 0;
+    callback request-increment();
+    callback request-decrement();
+
+    VerticalBox {
+        alignment: center;
+        spacing: 12px;
+
+        Text {
+            text: "Counter: " + root.counter;
+            horizontal-alignment: center;
+            font-size: 24px;
+        }
+
+        Button {
+            text: "Increment";
+            clicked => { root.request-increment(); }
+        }
+
+        Button {
+            text: "Decrement";
+            clicked => { root.request-decrement(); }
+        }
+    }
+}

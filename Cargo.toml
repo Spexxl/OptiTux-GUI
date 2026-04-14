@@ -6,8 +6,7 @@ authors = ["OptiTux Contributors"]
 description = "Optiscaler interface manager for Linux."
 
 [dependencies]
-# gtk = { version = "0.7.3", package = "gtk4", features = ["v4_12"] }
-# libadwaita = "0.5"
+slint = "1.9"
 tokio = { version = "1.36", features = ["full"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -21,3 +20,6 @@ regex = "1.10"
 serde_yaml = "0.9"
 walkdir = "2.4"
 sevenz-rust = "0.6"
+
+[build-dependencies]
+slint-build = "1.9"
