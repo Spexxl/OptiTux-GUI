@@ -1,3 +1,5 @@
+use std::fs;
+use std::path::Path;
 use std::process::Command;
 use serde::{Deserialize, Serialize};
 
@@ -27,20 +29,10 @@ pub struct GpuDetector;
 
 impl GpuDetector {
     pub fn detect_gpus() -> Vec<GpuInfo> {
-        let mut gpus = Vec::new();
+        let mut gpus = Self::detect_via_lspci();
 
-        let output = Command::new("lspci")
-            .output()
-            .unwrap_or_else(|_| std::process::Command::new("true").output().unwrap());
-
-        if let Ok(output_str) = String::from_utf8(output.stdout) {
-            for line in output_str.lines() {
-                if line.contains("VGA compatible controller") || line.contains("3D controller") {
-                    if let Some(gpu) = Self::parse_lspci_line(line) {
-                        gpus.push(gpu);
-                    }
-                }
-            }
+        if gpus.is_empty() {
+            gpus = Self::detect_via_sysfs();
         }
 
         if gpus.len() > 1 {
@@ -69,10 +61,89 @@ impl GpuDetector {
         gpus
     }
 
-    fn parse_lspci_line(line: &str) -> Option<GpuInfo> {
-        let pci_id = line.split_whitespace().next()?.to_string();
-        let upper_line = line.to_uppercase();
-        
+    fn detect_via_lspci() -> Vec<GpuInfo> {
+        let mut gpus = Vec::new();
+        if let Ok(output) = Command::new("lspci").output() {
+            if let Ok(output_str) = String::from_utf8(output.stdout) {
+                for line in output_str.lines() {
+                    if line.contains("VGA compatible controller") || line.contains("3D controller") {
+                        if let Some(gpu) = Self::parse_gpu_string(line, line.split_whitespace().next().unwrap_or("")) {
+                            gpus.push(gpu);
+                        }
+                    }
+                }
+            }
+        }
+        gpus
+    }
+
+    fn detect_via_sysfs() -> Vec<GpuInfo> {
+        let mut gpus = Vec::new();
+        let drm_path = Path::new("/sys/class/drm");
+
+        if drm_path.exists() {
+            if let Ok(entries) = fs::read_dir(drm_path) {
+                for entry in entries.flatten() {
+                    let name = entry.file_name().to_string_lossy().to_string();
+                    if name.starts_with("card") && !name.contains('-') {
+                        let device_path = entry.path().join("device");
+                        if let Ok(class_id) = fs::read_to_string(device_path.join("class")) {
+                            if class_id.starts_with("0x03") {
+                                if let Some(gpu) = Self::parse_sysfs_device(&device_path) {
+                                    gpus.push(gpu);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        gpus
+    }
+
+    fn parse_sysfs_device(sysfs_path: &Path) -> Option<GpuInfo> {
+        let vendor_hex = fs::read_to_string(sysfs_path.join("vendor")).unwrap_or_default().trim().to_lowercase();
+        let device_hex = fs::read_to_string(sysfs_path.join("device")).unwrap_or_default().trim().to_lowercase();
+        let pci_id = sysfs_path.file_name().unwrap_or_default().to_string_lossy().to_string();
+
+        let vendor_str = match vendor_hex.as_str() {
+            "0x10de" => "NVIDIA",
+            "0x1002" => "AMD",
+            "0x8086" => "Intel",
+            _ => "Unknown",
+        };
+
+        let mut name = format!("{} GPU (Device {})", vendor_str, device_hex);
+        let pci_db_paths = ["/usr/share/hwdata/pci.ids", "/usr/share/misc/pci.ids", "/var/lib/pciutils/pci.ids"];
+
+        for db_path in pci_db_paths {
+            if let Ok(content) = fs::read_to_string(db_path) {
+                let vendor_id_clean = vendor_hex.replace("0x", "");
+                let device_id_clean = device_hex.replace("0x", "");
+                let mut in_vendor = false;
+
+                for line in content.lines() {
+                    if line.starts_with(&vendor_id_clean) {
+                        in_vendor = true;
+                    } else if in_vendor && line.starts_with('\t') && !line.starts_with("\t\t") {
+                        let trimmed = line.trim();
+                        if trimmed.starts_with(&device_id_clean) {
+                            name = trimmed.replace(&device_id_clean, "").trim().to_string();
+                            break;
+                        }
+                    } else if !line.starts_with('\t') && !line.starts_with('#') && !line.is_empty() {
+                        in_vendor = false;
+                    }
+                }
+            }
+            if !name.contains("Device") { break; }
+        }
+
+        Self::parse_gpu_string(&name, &pci_id)
+    }
+
+    fn parse_gpu_string(raw_name: &str, pci_id: &str) -> Option<GpuInfo> {
+        let upper_line = raw_name.to_uppercase();
         let vendor = if upper_line.contains("NVIDIA") {
             "NVIDIA".to_string()
         } else if upper_line.contains("AMD") || upper_line.contains("ATI") {
@@ -83,9 +154,9 @@ impl GpuDetector {
             "Unknown".to_string()
         };
 
-        let name = line.split("VGA compatible controller:").nth(1)
-            .or_else(|| line.split("3D controller:").nth(1))
-            .unwrap_or(line)
+        let name = raw_name.split("VGA compatible controller:").nth(1)
+            .or_else(|| raw_name.split("3D controller:").nth(1))
+            .unwrap_or(raw_name)
             .trim()
             .to_string();
 
@@ -93,7 +164,7 @@ impl GpuDetector {
 
         Some(GpuInfo {
             name,
-            pci_id,
+            pci_id: pci_id.to_string(),
             vendor,
             architecture: arch,
             is_primary: false,
@@ -104,18 +175,13 @@ impl GpuDetector {
         let upper_name = name.to_uppercase();
 
         if vendor == "NVIDIA" {
-            if upper_name.contains("RTX") {
-                return GpuArchitecture::RTX;
-            } else if upper_name.contains("GTX") {
-                return GpuArchitecture::GTX;
-            }
+            if upper_name.contains("RTX") { return GpuArchitecture::RTX; }
+            if upper_name.contains("GTX") { return GpuArchitecture::GTX; }
             return GpuArchitecture::OtherNvidia;
         }
 
         if vendor == "AMD" {
-            if upper_name.contains("RX 9") || upper_name.contains("NAVI 4") {
-                return GpuArchitecture::RDNA4;
-            }
+            if upper_name.contains("RX 9") || upper_name.contains("NAVI 4") { return GpuArchitecture::RDNA4; }
             if upper_name.contains("RX 5") || upper_name.contains("RX 6") || upper_name.contains("RX 7") || upper_name.contains("NAVI") {
                 return GpuArchitecture::RDNA1_2_3;
             }
@@ -123,9 +189,7 @@ impl GpuDetector {
         }
 
         if vendor == "Intel" {
-            if upper_name.contains("ARC") {
-                return GpuArchitecture::IntelArc;
-            }
+            if upper_name.contains("ARC") { return GpuArchitecture::IntelArc; }
             return GpuArchitecture::OtherIntel;
         }
 
