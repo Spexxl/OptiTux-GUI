@@ -13,8 +13,7 @@ pub enum InjectionMethod {
     Dbghelp,
     D3d12,
     Wininet,
-    Winhttp,
-}
+    Winhttp,}
 
 impl InjectionMethod {
     pub fn as_str(&self) -> &'static str {
@@ -94,6 +93,14 @@ impl Installer {
         let json = serde_json::to_string_pretty(&manifest)?;
         fs::write(manifest_path, json).context("Failed to write installation manifest")?;
 
+        Ok(())
+    }
+
+    pub fn install_int8(game: &Game, int8_file_path: &Path) -> Result<()> {
+        let game_dir = Self::get_target_dir(game)?;
+        let target_path = game_dir.join("amd_fidelityfx_upscaler_dx12.dll");
+        
+        fs::copy(int8_file_path, &target_path).context("Failed to overlay INT8 DLL into Game directory")?;
         Ok(())
     }
 

@@ -41,6 +41,8 @@ impl GitHubClient {
 
         if let Ok(response) = client.get(GITHUB_API_URL_PRE_RELEASE).send().await {
             if let Ok(mut db_releases) = response.json::<Vec<Release>>().await {
+                // Filter out the INT8 specific release so it doesn't appear as OptiScaler
+                db_releases.retain(|r| r.tag_name != "INT8");
                 for r in &mut db_releases {
                     r.prerelease = true;
                 }
@@ -53,6 +55,27 @@ impl GitHubClient {
         }
 
         Ok(all_releases)
+    }
+
+    pub async fn get_int8_addon() -> Result<Asset> {
+        let client = Client::builder()
+            .user_agent("OptiTux-GUI")
+            .build()?;
+
+        let url = "https://api.github.com/repos/Spexxl/OptiTux-Database/releases/tags/INT8";
+        let response = client.get(url).send().await?;
+        
+        if !response.status().is_success() {
+            return Err(anyhow!("INT8 release not found or rate limited."));
+        }
+
+        let release = response.json::<Release>().await?;
+        
+        if release.assets.is_empty() {
+            return Err(anyhow!("No assets found in the INT8 release."));
+        }
+
+        Ok(release.assets[0].clone())
     }
 
     pub async fn download_asset(asset: &Asset, target_dir: &Path) -> Result<PathBuf> {
