@@ -6,20 +6,15 @@ use log::info;
 fn main() {
     env_logger::init();
     
-    info!("Starting Heroic Scanner test...");
-    
-    let games = core::scanners::heroic_scanner::scan();
-    
-    if games.is_empty() {
-        println!("No Heroic games found.");
-    } else {
-        println!("Found {} Heroic games:", games.len());
-        for game in games {
-            println!("---------------------------------");
-            println!("Name: {}", game.name);
-            println!("AppID: {}", game.app_id);
-            println!("Install Path: {}", game.install_path);
-        }
-        println!("---------------------------------");
+    info!("--- TESTING STEAM SCANNER WITH AUTO-EXE DETECTION ---");
+    let steam_games = core::scanners::steam_scanner::scan();
+    for game in steam_games.iter().take(5) {
+        println!("Game: {} | Exe: {}", game.name, game.executable_path.as_deref().unwrap_or("NOT FOUND"));
+    }
+
+    info!("--- TESTING HEROIC SCANNER WITH AUTO-EXE DETECTION ---");
+    let heroic_games = core::scanners::heroic_scanner::scan();
+    for game in heroic_games {
+        println!("Game: {} | Exe: {}", game.name, game.executable_path.as_deref().unwrap_or("NOT FOUND"));
     }
 }
