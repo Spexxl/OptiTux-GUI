@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use directories::ProjectDirs;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use crate::core::optiscaler::github::{Asset, GitHubClient, Release};
 
@@ -26,52 +26,73 @@ impl OptiScalerManager {
 
     pub fn get_downloaded_versions() -> Vec<String> {
         let mut versions = Vec::new();
-        
+
         if let Some(dir) = Self::versions_dir() {
             if let Ok(entries) = fs::read_dir(dir) {
                 for entry in entries.flatten() {
                     let path = entry.path();
-                    if path.is_file() {
-                        let file_name = path.file_name().unwrap_or_default().to_string_lossy().to_string();
-                        if file_name.ends_with(".zip") || file_name.ends_with(".7z") {
-                            versions.push(file_name);
-                        }
+                    if path.is_dir() {
+                        versions.push(
+                            path.file_name()
+                                .unwrap_or_default()
+                                .to_string_lossy()
+                                .to_string(),
+                        );
                     }
                 }
             }
         }
-        
+
         versions.sort();
         versions.reverse();
-        
+
         versions
     }
 
-    pub async fn download_version(asset: &Asset) -> Result<PathBuf> {
-        if let Some(dir) = Self::versions_dir() {
-            GitHubClient::download_asset(asset, &dir).await
-        } else {
-            Err(anyhow!("Could not determine local data directory to download OptiScaler versions."))
-        }
-    }
+    pub async fn download_and_extract(asset: &Asset) -> Result<PathBuf> {
+        let dir = Self::versions_dir()
+            .ok_or_else(|| anyhow!("Could not determine local data directory."))?;
 
-    pub fn remove_downloaded_version(file_name: &str) -> Result<()> {
-        if let Some(dir) = Self::versions_dir() {
-            let file_path = dir.join(file_name);
-            if file_path.exists() {
-                fs::remove_file(file_path)?;
+        let archive_path = GitHubClient::download_asset(asset, &dir).await?;
+        let version_name = asset.name.replace(".zip", "").replace(".7z", "");
+        let extract_dir = dir.join(&version_name);
+
+        if !extract_dir.exists() {
+            fs::create_dir_all(&extract_dir)?;
+        }
+
+        if let Some(ext) = archive_path.extension().and_then(|s| s.to_str()) {
+            if ext == "7z" {
+                sevenz_rust::decompress_file(&archive_path, &extract_dir)
+                    .map_err(|e| anyhow!("Failed to extract 7z archive: {}", e))?;
+            } else if ext == "zip" {
+                let file = fs::File::open(&archive_path)?;
+                let mut archive = zip::ZipArchive::new(file)?;
+                archive.extract(&extract_dir)?;
             }
-            Ok(())
-        } else {
-            Err(anyhow!("Could not determine local data directory."))
         }
+
+        let _ = fs::remove_file(&archive_path);
+
+        Ok(extract_dir)
     }
 
-    pub fn get_version_path(file_name: &str) -> Option<PathBuf> {
+    pub fn remove_downloaded_version(folder_name: &str) -> Result<()> {
+        let dir = Self::versions_dir()
+            .ok_or_else(|| anyhow!("Could not determine local data directory."))?;
+
+        let folder_path = dir.join(folder_name);
+        if folder_path.exists() && folder_path.is_dir() {
+            fs::remove_dir_all(folder_path)?;
+        }
+        Ok(())
+    }
+
+    pub fn get_version_path(folder_name: &str) -> Option<PathBuf> {
         if let Some(dir) = Self::versions_dir() {
-            let file_path = dir.join(file_name);
-            if file_path.exists() {
-                return Some(file_path);
+            let folder_path = dir.join(folder_name);
+            if folder_path.exists() && folder_path.is_dir() {
+                return Some(folder_path);
             }
         }
         None
