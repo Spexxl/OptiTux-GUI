@@ -1,20 +1,25 @@
-import { Sparkles, Download, Trash2, Check } from "lucide-react";
+import { Sparkles, Download, Trash2, Check, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import locales from "@/locales/en.json";
 
+export interface Game {
+  name: string;
+  install_path: string;
+  executable_path: string | null;
+  upscalars: string[];
+  platform: string;
+  app_id: string;
+  cover_url: string | null;
+}
+
 interface GameCardProps {
-  game: {
-    name: String;
-    platform: string;
-    upscalars: string[];
-    isInstalled: boolean;
-    coverArt?: string;
-  };
+  game: Game;
 }
 
 export function GameCard({ game }: GameCardProps) {
   const platformDisplay = game.platform === "Custom" ? "Manual" : game.platform;
+  const isInstalled = game.executable_path !== null;
 
   const techBadgeStyles: Record<string, string> = {
     DLSS: "bg-green-500/10 text-green-500",
@@ -24,14 +29,23 @@ export function GameCard({ game }: GameCardProps) {
 
   return (
     <div className="group relative flex flex-col space-y-3 w-full animate-in fade-in zoom-in-95 duration-300">
-      <div className="relative aspect-3/4 rounded-xl overflow-hidden bg-muted border border-border/50 shadow-lg">
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-          style={{
-            backgroundImage: game.coverArt ? `url(${game.coverArt})` : "none",
-            backgroundColor: "#1a1a1a"
-          }}
-        />
+      <div className="relative aspect-3/4 rounded-xl overflow-hidden bg-muted border border-border/50 shadow-lg flex flex-col">
+        {game.cover_url ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+            style={{
+              backgroundImage: `url(${game.cover_url})`,
+              backgroundColor: "#1a1a1a"
+            }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[#1a1a1a] flex flex-col items-center justify-center p-4 text-center transition-transform duration-500 group-hover:scale-110">
+            <Target className="w-12 h-12 text-muted-foreground/30 mb-3" />
+            <span className="font-bold text-lg text-muted-foreground/50 uppercase tracking-widest break-words w-full px-2" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+              {game.name}
+            </span>
+          </div>
+        )}
 
         <div className="absolute top-3 left-3 flex gap-2">
           <Badge
@@ -41,7 +55,7 @@ export function GameCard({ game }: GameCardProps) {
             {platformDisplay}
           </Badge>
 
-          {game.isInstalled && (
+          {isInstalled && (
             <Badge className="bg-green-500/80 backdrop-blur-md text-white border-none text-[10px] font-bold px-2 py-0.5 gap-1 font-sans">
               <Check className="w-3 h-3" />
               {locales.gameCard.installedStatus}
@@ -50,7 +64,7 @@ export function GameCard({ game }: GameCardProps) {
         </div>
 
         <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center space-y-3 p-4">
-          {!game.isInstalled ? (
+          {!isInstalled ? (
             <>
               <Button size="sm" className="w-full bg-gray-400 hover:bg-gray-500 text-white rounded-lg font-semibold gap-2 shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                 <Sparkles className="w-4 h-4" />

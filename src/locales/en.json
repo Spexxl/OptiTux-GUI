@@ -24,5 +24,9 @@
   "actions": {
     "installed": "Installed",
     "notInstalled": "Not Installed"
+  },
+  "gamesList": {
+    "emptyStateTitle": "No Games Found",
+    "emptyStateDesc": "We couldn't detect any supported games. Try running a scan or adding them manually."
   }
 }

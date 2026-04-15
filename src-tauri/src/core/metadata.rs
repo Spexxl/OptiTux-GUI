@@ -25,10 +25,24 @@ async fn search_steam_app_id(game_name: &str) -> Result<u32> {
     let response = client.get(url).send().await?.json::<Value>().await?;
 
     if let Some(items) = response["items"].as_array() {
-        if !items.is_empty() {
-            if let Some(id) = items[0]["id"].as_u64() {
-                return Ok(id as u32);
+        if items.is_empty() {
+            return Err(anyhow!("No results for: {}", game_name));
+        }
+
+        let search_name = game_name.to_lowercase();
+
+        for item in items {
+            if let Some(name) = item["name"].as_str() {
+                if name.to_lowercase() == search_name {
+                    if let Some(id) = item["id"].as_u64() {
+                        return Ok(id as u32);
+                    }
+                }
             }
+        }
+
+        if let Some(id) = items[0]["id"].as_u64() {
+            return Ok(id as u32);
         }
     }
 
