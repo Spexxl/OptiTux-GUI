@@ -6,7 +6,6 @@ authors = ["OptiTux Contributors"]
 description = "Optiscaler interface manager for Linux."
 
 [dependencies]
-slint = "1.15"
 tokio = { version = "1.36", features = ["full"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -20,6 +19,3 @@ regex = "1.10"
 serde_yaml = "0.9"
 walkdir = "2.4"
 sevenz-rust = "0.6"
-
-[build-dependencies]
-slint-build = "1.15"
