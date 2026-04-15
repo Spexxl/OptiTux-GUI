@@ -8,5 +8,15 @@
     "community": "Community",
     "settings": "Settings",
     "about": "About"
+  },
+  "gameCard": {
+    "quickInstall": "Quick Install",
+    "install": "Install",
+    "uninstall": "Uninstall",
+    "installedStatus": "Installed"
+  },
+  "actions": {
+    "installed": "Installed",
+    "notInstalled": "Not Installed"
   }
 }

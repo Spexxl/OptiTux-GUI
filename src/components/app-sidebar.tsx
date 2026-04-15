@@ -1,6 +1,5 @@
 import { Gamepad2, Box, LayoutGrid, Settings, Info } from "lucide-react";
 import locales from "@/locales/en.json";
-
 import {
   Sidebar,
   SidebarContent,
@@ -21,7 +20,7 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-6">
         <div className="flex items-center gap-3">
-          <img src="/tauri.svg" alt="OptiTux Logo" className="w-6 h-6" />
+          <img src="/OptiTuxLogo.png" alt="Logo" className="w-10 h-10" />
           <span className="font-semibold text-lg tracking-tight">
             {locales.app.title}
           </span>
@@ -29,12 +28,12 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarMenu className="px-4 space-y-1">
+        <SidebarMenu className="px-4 space-y-1 ">
           <SidebarMenuItem>
-            <SidebarMenuButton 
-              isActive={activeTab === "gamesList"} 
-              size="lg" 
-              className="rounded-xl font-medium" 
+            <SidebarMenuButton
+              isActive={activeTab === "gamesList"}
+              size="lg"
+              className="rounded-xl font-medium"
               onClick={() => onTabChange("gamesList")}
             >
               <Gamepad2 className="w-5 h-5 mr-3" />
@@ -42,9 +41,9 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton 
-              isActive={activeTab === "optiscalerVersions"} 
-              size="lg" 
+            <SidebarMenuButton
+              isActive={activeTab === "optiscalerVersions"}
+              size="lg"
               className="rounded-xl"
               onClick={() => onTabChange("optiscalerVersions")}
             >
@@ -53,9 +52,9 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton 
-              isActive={activeTab === "community"} 
-              size="lg" 
+            <SidebarMenuButton
+              isActive={activeTab === "community"}
+              size="lg"
               className="rounded-xl"
               onClick={() => onTabChange("community")}
             >
@@ -69,9 +68,9 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
       <SidebarFooter className="py-6">
         <SidebarMenu className="px-4 space-y-1">
           <SidebarMenuItem>
-            <SidebarMenuButton 
-              isActive={activeTab === "settings"} 
-              size="lg" 
+            <SidebarMenuButton
+              isActive={activeTab === "settings"}
+              size="lg"
               className="rounded-xl"
               onClick={() => onTabChange("settings")}
             >
@@ -80,9 +79,9 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton 
-              isActive={activeTab === "about"} 
-              size="lg" 
+            <SidebarMenuButton
+              isActive={activeTab === "about"}
+              size="lg"
               className="rounded-xl"
               onClick={() => onTabChange("about")}
             >
