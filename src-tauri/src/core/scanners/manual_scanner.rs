@@ -113,6 +113,7 @@ fn scan_game_folder(game_folder: &Path) -> Option<Game> {
             executable_path: Some(exe_path.to_string_lossy().to_string()),
             upscalars: target_upscalars,
             platform: GamePlatform::Custom,
+            cover_url: None,
         })
     } else {
         None

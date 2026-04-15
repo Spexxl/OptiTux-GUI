@@ -95,6 +95,7 @@ fn parse_lutris_yaml(path: &Path) -> Option<Game> {
         executable_path: Some(exe_path_str),
         upscalars,
         platform: GamePlatform::Lutris,
+        cover_url: None,
     })
 }
 

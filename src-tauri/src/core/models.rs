@@ -16,4 +16,5 @@ pub struct Game {
     pub upscalars: Vec<String>,
     pub platform: GamePlatform,
     pub app_id: String,
+    pub cover_url: Option<String>,
 }

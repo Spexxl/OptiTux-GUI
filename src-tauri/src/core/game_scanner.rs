@@ -1,11 +1,13 @@
 use crate::core::models::Game;
 use crate::core::scanners::{steam_scanner, heroic_scanner, lutris_scanner, manual_scanner};
 use crate::core::cache::GameCache;
+use crate::core::metadata;
+use futures::future::join_all;
 
 pub struct ScannerManager;
 
 impl ScannerManager {
-    pub fn get_games(force_rescan: bool, custom_folders: &[String]) -> Vec<Game> {
+    pub async fn get_games(force_rescan: bool, custom_folders: &[String]) -> Vec<Game> {
         if !force_rescan {
             let cached = GameCache::load();
             if !cached.is_empty() {
@@ -24,6 +26,17 @@ impl ScannerManager {
         }
 
         all_games.retain(|g| g.executable_path.is_some());
+
+        // Fetch metadata (covers) in parallel
+        let metadata_tasks: Vec<_> = all_games.iter().map(|game| {
+            metadata::fetch_game_cover(&game.name)
+        }).collect();
+
+        let covers = join_all(metadata_tasks).await;
+
+        for (game, cover) in all_games.iter_mut().zip(covers) {
+            game.cover_url = cover;
+        }
 
         GameCache::save(&all_games);
         

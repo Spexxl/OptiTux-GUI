@@ -54,6 +54,7 @@ pub fn scan() -> Vec<Game> {
                         executable_path: exec_path,
                         upscalars,
                         platform: GamePlatform::Heroic,
+                        cover_url: None,
                     });
                 }
             }
