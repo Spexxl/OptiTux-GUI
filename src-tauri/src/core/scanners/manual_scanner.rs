@@ -24,6 +24,9 @@ pub fn scan(folder_path: &str) -> Vec<Game> {
         for entry in entries.flatten() {
             let path = entry.path();
             if path.is_dir() {
+                if is_ignored_folder(&path) {
+                    continue;
+                }
                 if let Some(game) = scan_game_folder(&path) {
                     games.push(game);
                 }
@@ -34,7 +37,28 @@ pub fn scan(folder_path: &str) -> Vec<Game> {
     games
 }
 
+fn is_ignored_folder(path: &Path) -> bool {
+    let name = path
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_lowercase();
+
+    name.contains("proton")
+        || name.contains("steamworks")
+        || name.contains("steam linux runtime")
+        || name.contains("directx")
+        || name.contains("commonredist")
+        || name.contains("shadercache")
+        || name.contains("compatdata")
+        || name.contains("openxr")
+        || name.contains("steam controller")
+}
+
 fn is_game_folder(path: &Path) -> bool {
+    if is_ignored_folder(path) {
+        return false;
+    }
     if let Ok(entries) = fs::read_dir(path) {
         for entry in entries.flatten() {
             let p = entry.path();

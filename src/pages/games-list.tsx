@@ -181,7 +181,7 @@ export function GamesList() {
       <ManualFoldersDialog 
         isOpen={isFoldersDialogOpen}
         onClose={() => setIsFoldersDialogOpen(false)}
-        onFoldersChanged={() => fetchGames(false)}
+        onFoldersChanged={() => fetchGames(true)}
       />
     </div>
   );

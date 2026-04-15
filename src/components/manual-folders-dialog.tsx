@@ -12,6 +12,7 @@ interface ManualFoldersDialogProps {
 
 export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: ManualFoldersDialogProps) {
   const [folders, setFolders] = useState<string[]>([]);
+  const [wasChanged, setWasChanged] = useState(false);
 
   const loadFolders = async () => {
     const list = await invoke<string[]>("get_custom_folders");
@@ -21,8 +22,16 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
   useEffect(() => {
     if (isOpen) {
       loadFolders();
+      setWasChanged(false);
     }
   }, [isOpen]);
+
+  const handleClose = () => {
+    if (wasChanged) {
+      onFoldersChanged();
+    }
+    onClose();
+  };
 
   const handleAddFolder = async () => {
     try {
@@ -35,7 +44,7 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
       if (selected && typeof selected === "string") {
         await invoke("add_custom_folder", { folder: selected });
         await loadFolders();
-        onFoldersChanged();
+        setWasChanged(true);
       }
     } catch (e) {
       console.error("Failed to open folder picker", e);
@@ -45,7 +54,7 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
   const handleRemoveFolder = async (path: string) => {
     await invoke("remove_custom_folder", { folder: path });
     await loadFolders();
-    onFoldersChanged();
+    setWasChanged(true);
   };
 
   if (!isOpen) return null;
@@ -53,7 +62,7 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
     >
       <div className="absolute inset-0 bg-black/70" />
 
@@ -69,7 +78,7 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
           >
             ✕
@@ -119,7 +128,7 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
           <Button
             variant="outline"
             size="sm"
-            onClick={onClose}
+            onClick={handleClose}
             className="rounded-xl border-white/10 hover:bg-white/5 text-muted-foreground hover:text-foreground"
           >
             Close
