@@ -19,3 +19,8 @@ regex = "1.10"
 serde_yaml = "0.9"
 walkdir = "2.4"
 sevenz-rust = "0.6"
+tauri = { version = "2.0.0", features = [] }
+tauri-plugin-opener = "2.0.0"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = [] }
