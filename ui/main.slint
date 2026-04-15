@@ -1,39 +1,41 @@
-import { Button, VerticalBox } from "std-widgets.slint";
+import { NavPage } from "types.slint";
+import { NavDrawer } from "components/nav_drawer.slint";
+import { GameListPage } from "pages/game_list_page.slint";
+import { VersionsPage } from "pages/versions_page.slint";
+import { CommunityPage } from "pages/community_page.slint";
+import { SettingsPage } from "pages/settings_page.slint";
+import { AboutPage } from "pages/about_page.slint";
 
 export component MainWindow inherits Window {
-    title: "OptiTux-GUI";
-    preferred-width: 800px;
-    preferred-height: 600px;
+    title: "OptiTux";
+    preferred-width: 1100px;
+    preferred-height: 720px;
+    background: #0f1117;
 
-    in-out property <int> counter: 0;
-    callback request-increment();
-    callback request-decrement();
+    property <NavPage> current-page: NavPage.GameList;
 
-    VerticalBox {
-        alignment: LayoutAlignment.center;
-        spacing: 12px;
-        x: 1px;
-        y: 2px;
+    HorizontalLayout {
+        spacing: 0px;
 
-        Text {
-            text: "Counter: " + root.counter;
-            horizontal-alignment: center;
-            font-size: 24px;
+        NavDrawer {
+            current-page: root.current-page;
+            navigate(page) => { root.current-page = page; }
         }
 
-        Button {
-            text: "Increment";
-            clicked => {
-                root.request-increment();
-            }
+        Rectangle {
+            width: 1px;
+            background: #252932;
         }
 
-        Button {
-            enabled: true;
-            text: "Decrement";
-            clicked => {
-                root.request-decrement();
-            }
+        Rectangle {
+            background: #0f1117;
+            clip: true;
+
+            if root.current-page == NavPage.GameList: GameListPage {}
+            if root.current-page == NavPage.Versions: VersionsPage {}
+            if root.current-page == NavPage.Community: CommunityPage {}
+            if root.current-page == NavPage.Settings: SettingsPage {}
+            if root.current-page == NavPage.About: AboutPage {}
         }
     }
 }

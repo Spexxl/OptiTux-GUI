@@ -1,15 +1,11 @@
-mod core;
-mod ui;
+slint::include_modules!();
 
-use env_logger;
-use log::info;
+mod core;
 
 fn main() {
-    env_logger::init();
-    
-    info!("Starting OptiTux-GUI");
-    
-    if let Err(e) = ui::main_window::run_ui() {
-        log::error!("Failed to start UI: {}", e);
-    }
+    let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
+    let _guard = rt.enter();
+
+    let window = MainWindow::new().expect("Failed to create window");
+    window.run().expect("Application error");
 }
