@@ -24,23 +24,23 @@ export function GameCard({ game }: GameCardProps) {
 
   return (
     <div className="group relative flex flex-col space-y-3 w-full animate-in fade-in zoom-in-95 duration-300">
-      <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-muted border border-border/50 shadow-lg">
-        <div 
+      <div className="relative aspect-3/4 rounded-xl overflow-hidden bg-muted border border-border/50 shadow-lg">
+        <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-          style={{ 
+          style={{
             backgroundImage: game.coverArt ? `url(${game.coverArt})` : "none",
             backgroundColor: "#1a1a1a"
           }}
         />
 
         <div className="absolute top-3 left-3 flex gap-2">
-          <Badge 
-            variant="secondary" 
+          <Badge
+            variant="secondary"
             className="bg-black/60 backdrop-blur-md text-white border-none hover:bg-black/80 transition-colors uppercase text-[10px] font-bold px-2 py-0.5 font-sans"
           >
             {platformDisplay}
           </Badge>
-          
+
           {game.isInstalled && (
             <Badge className="bg-green-500/80 backdrop-blur-md text-white border-none text-[10px] font-bold px-2 py-0.5 gap-1 font-sans">
               <Check className="w-3 h-3" />
@@ -56,7 +56,7 @@ export function GameCard({ game }: GameCardProps) {
                 <Sparkles className="w-4 h-4" />
                 {locales.gameCard.quickInstall}
               </Button>
-              
+
               <Button variant="secondary" size="sm" className="w-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border-white/10 rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75">
                 <Download className="w-4 h-4" />
                 {locales.gameCard.install}
@@ -75,7 +75,7 @@ export function GameCard({ game }: GameCardProps) {
         <h3 className="font-bold text-sm text-foreground truncate">
           {game.name}
         </h3>
-        
+
         <div className="flex flex-wrap gap-1.5">
           {game.upscalars.map((tech) => (
             <Badge key={tech} className={`text-[9px] font-extrabold px-1.5 py-0 rounded-sm border-none shadow-sm ${techBadgeStyles[tech] || "bg-zinc-500/10 text-zinc-500"}`}>

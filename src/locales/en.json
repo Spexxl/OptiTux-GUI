@@ -15,6 +15,12 @@
     "uninstall": "Uninstall",
     "installedStatus": "Installed"
   },
+  "toolbar": {
+    "scanGames": "Scan Games",
+    "addManual": "Add Manual",
+    "search": "Search games...",
+    "gpu": "GPU"
+  },
   "actions": {
     "installed": "Installed",
     "notInstalled": "Not Installed"
