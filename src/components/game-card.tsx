@@ -11,6 +11,7 @@ export interface Game {
   platform: string;
   app_id: string;
   cover_url: string | null;
+  is_optiscaler_installed: boolean;
 }
 
 interface GameCardProps {
@@ -19,7 +20,7 @@ interface GameCardProps {
 
 export function GameCard({ game }: GameCardProps) {
   const platformDisplay = game.platform === "Custom" ? "Manual" : game.platform;
-  const isInstalled = game.executable_path !== null;
+  const isInstalled = game.is_optiscaler_installed;
 
   const techBadgeStyles: Record<string, string> = {
     DLSS: "bg-green-500/10 text-green-500",

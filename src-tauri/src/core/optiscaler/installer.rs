@@ -149,9 +149,22 @@ impl Installer {
     }
 
     pub fn is_installed(game: &Game) -> bool {
-        if let Ok(dir) = Self::get_target_dir(game) {
-            return dir.join("optiscaler_manifest.json").exists();
+        let Ok(dir) = Self::get_target_dir(game) else { return false; };
+        
+        if dir.join("optiscaler_manifest.json").exists() {
+            return true;
         }
+
+        if let Ok(entries) = fs::read_dir(dir) {
+            for entry in entries.flatten() {
+                if let Ok(file_name) = entry.file_name().into_string() {
+                    if file_name.to_lowercase() == "optiscaler.ini" {
+                        return true;
+                    }
+                }
+            }
+        }
+
         false
     }
 

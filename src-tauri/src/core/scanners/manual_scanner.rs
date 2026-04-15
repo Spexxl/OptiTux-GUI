@@ -114,6 +114,7 @@ fn scan_game_folder(game_folder: &Path) -> Option<Game> {
             upscalars: target_upscalars,
             platform: GamePlatform::Custom,
             cover_url: None,
+            is_optiscaler_installed: false,
         })
     } else {
         None

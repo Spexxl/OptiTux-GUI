@@ -96,6 +96,7 @@ fn parse_lutris_yaml(path: &Path) -> Option<Game> {
         upscalars,
         platform: GamePlatform::Lutris,
         cover_url: None,
+        is_optiscaler_installed: false,
     })
 }
 

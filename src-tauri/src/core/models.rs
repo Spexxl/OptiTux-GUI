@@ -17,4 +17,5 @@ pub struct Game {
     pub platform: GamePlatform,
     pub app_id: String,
     pub cover_url: Option<String>,
+    pub is_optiscaler_installed: bool,
 }

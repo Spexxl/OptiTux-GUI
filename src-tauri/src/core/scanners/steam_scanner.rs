@@ -76,7 +76,7 @@ fn find_best_executable(root: &Path) -> (Option<String>, Vec<String>) {
                             }
                         }
                         if best_exe.is_none() {
-                            best_exe = Some(path.to_string_lossy().to_string());
+                            best_exe = Some(path.to_path_buf().to_string_lossy().to_string());
                         }
                     }
                 }
@@ -169,5 +169,5 @@ fn parse_manifest(manifest_path: &Path, steamapps_path: &Path) -> Option<Game> {
     let install_dir = Regex::new(r#"("installdir"|"InstallDir")\s+"([^"]+)""#).ok()?
         .captures(&content).and_then(|cap| cap.get(2)).map(|m| m.as_str().to_string())?;
     let full_install_path = steamapps_path.join("common").join(install_dir).to_string_lossy().to_string();
-    Some(Game { app_id, name, install_path: full_install_path, executable_path: None, upscalars: vec![], platform: GamePlatform::Steam, cover_url: None })
+    Some(Game { app_id, name, install_path: full_install_path, executable_path: None, upscalars: vec![], platform: GamePlatform::Steam, cover_url: None, is_optiscaler_installed: false })
 }

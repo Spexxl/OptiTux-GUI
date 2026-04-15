@@ -55,6 +55,7 @@ pub fn scan() -> Vec<Game> {
                         upscalars,
                         platform: GamePlatform::Heroic,
                         cover_url: None,
+                        is_optiscaler_installed: false,
                     });
                 }
             }
