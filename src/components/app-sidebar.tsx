@@ -13,17 +13,17 @@ import {
 
 export function AppSidebar() {
   return (
-    <Sidebar className="border-r-0">
-      <SidebarHeader className="p-6">
+    <Sidebar className="border-r-0 bg-[#121212]">
+      <SidebarHeader className="p-6 bg-[#121212]">
         <div className="flex items-center gap-3">
-          <img src="/tauri.svg" alt="OptiTux Logo" className="w-6 h-6" />
+          <img src="/OptiTuxLogo.png" alt="OptiTux Logo" className="w-10 h-10" />
           <span className="font-semibold text-lg tracking-tight">
             {locales.app.title}
           </span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="bg-[#121212]">
         <SidebarMenu className="px-4 space-y-1">
           <SidebarMenuItem>
             <SidebarMenuButton isActive size="lg" className="rounded-xl font-medium" render={<a href="#" />}>
@@ -46,7 +46,7 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="py-6">
+      <SidebarFooter className="py-6 bg-[#121212]">
         <SidebarMenu className="px-4 space-y-1">
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" className="rounded-xl text-muted-foreground hover:text-foreground" render={<a href="#" />}>
