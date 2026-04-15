@@ -64,14 +64,14 @@ component NavigationItemTemplate inherits BaseNavigationItemTemplate {
                 MaterialText {
                     horizontal_stretch: 1;
                     text: root.text;
-                    style: MaterialTypography.label_large;
+                    style: MaterialTypography.title_medium;
                     color: root.color;
                     vertical_alignment: center;
                 }
 
                 if root.badge != "" : MaterialText {
                     text: root.badge;
-                    style: MaterialTypography.label_large;
+                    style: MaterialTypography.title_medium;
                     color: root.color;
                     vertical_alignment: center;
                 }
@@ -158,6 +158,7 @@ export component NavigationDrawer inherits Drawer {
         items: group.items;
         current_index: group_index == root.current_group ? root.current_index : -1;
         has_divider: root.groups.length > 1 && group_index < root.groups.length - 1;
+        vertical-stretch: group_index == 0 && root.groups.length > 1 ? 1 : 0;
 
         select(index) => {
             root.select(group_index, index);
@@ -193,6 +194,7 @@ export component ModalNavigationDrawer inherits ModalDrawer {
         items: group.items;
         current_index: group_index == root.current_group ? root.current_index : -1;
         has_divider: root.groups.length > 1 && group_index < root.groups.length - 1;
+        vertical-stretch: group_index == 0 && root.groups.length > 1 ? 1 : 0;
 
         select(index) => {
             root.select(group_index, index);

@@ -19,7 +19,7 @@ export component DrawerHeader {
         text: root.title;
         color: MaterialPalette.on_surface_variant;
         vertical_alignment: center;
-        style: MaterialTypography.title_small;
+        style: MaterialTypography.title_medium;
     }
 }
 
@@ -35,7 +35,6 @@ export component Drawer {
             border_radius: MaterialStyleMetrics.border_radius_16;
 
             layout := VerticalLayout {
-                alignment: start;
                 padding: MaterialStyleMetrics.padding_12;
 
                 if root.title != "" : DrawerHeader {
