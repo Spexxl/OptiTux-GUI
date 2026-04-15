@@ -155,8 +155,7 @@ export function GamesList() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto no-scrollbar px-8 py-8 relative">
-        {/* Loader Overlay */}
+      <div className="flex-1 relative overflow-hidden border-t border-border/10">
         {isScanning && (
           <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm text-muted-foreground animate-in fade-in duration-300">
             <Loader2 className="w-10 h-10 mb-4 animate-spin text-primary/50" />
@@ -164,27 +163,28 @@ export function GamesList() {
           </div>
         )}
 
-        {/* Conditional Content */}
-        {!isScanning && displayedGames.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
-            <Ghost className="w-16 h-16 mb-4 opacity-50" />
-            <h3 className="text-xl font-bold text-foreground mb-1">
-              {locales.gamesList.emptyStateTitle}
-            </h3>
-            <p className="text-sm max-w-sm text-center">
-              {locales.gamesList.emptyStateDesc}
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-            {displayedGames.map((game) => (
-              <GameCard key={game.app_id} game={game} />
-            ))}
-          </div>
-        )}
+        <div className="h-full overflow-y-auto no-scrollbar px-8 py-8">
+          {!isScanning && displayedGames.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
+              <Ghost className="w-16 h-16 mb-4 opacity-50" />
+              <h3 className="text-xl font-bold text-foreground mb-1">
+                {locales.gamesList.emptyStateTitle}
+              </h3>
+              <p className="text-sm max-w-sm text-center">
+                {locales.gamesList.emptyStateDesc}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+              {displayedGames.map((game) => (
+                <GameCard key={game.app_id} game={game} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <ManualFoldersDialog 
+      <ManualFoldersDialog
         isOpen={isFoldersDialogOpen}
         onClose={() => setIsFoldersDialogOpen(false)}
         onFoldersChanged={() => fetchGames(true)}
