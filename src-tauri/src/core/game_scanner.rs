@@ -26,6 +26,21 @@ impl ScannerManager {
             games.extend(manual_scanner::scan(folder));
         }
 
+        let mut unique_games = Vec::new();
+        let mut seen_paths = std::collections::HashSet::new();
+
+        for game in games {
+            if let Some(ref path) = game.executable_path {
+                if !seen_paths.contains(path) {
+                    seen_paths.insert(path.clone());
+                    unique_games.push(game);
+                }
+            } else {
+                unique_games.push(game);
+            }
+        }
+        let mut games = unique_games;
+
         for game in &mut games {
             game.is_optiscaler_installed = Installer::is_installed(game);
         }

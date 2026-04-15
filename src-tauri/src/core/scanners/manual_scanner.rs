@@ -3,7 +3,7 @@ use std::fs;
 use std::path::Path;
 use walkdir::WalkDir;
 
-const MIN_EXE_SIZE_BYTES: u64 = 512 * 512;
+const MIN_EXE_SIZE_BYTES: u64 = 1024 * 1024;
 
 pub fn scan(folder_path: &str) -> Vec<Game> {
     let mut games = Vec::new();
