@@ -24,7 +24,7 @@ const PLATFORM_LABELS: Record<PlatformFilter, string> = {
 };
 
 export function GamesList() {
-  const [gpuName, setGpuName] = useState("Detecting GPU...");
+  const [gpuName, setGpuName] = useState(locales.toolbar.detectingGpu);
   const [games, setGames] = useState<Game[]>([]);
   const [isScanning, setIsScanning] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -39,7 +39,7 @@ export function GamesList() {
       }
     } catch (e) {
       console.error(e);
-      setGpuName("Unknown GPU");
+      setGpuName(locales.toolbar.unknownGpu);
     }
   };
 
@@ -124,11 +124,10 @@ export function GamesList() {
             <button
               key={platform}
               onClick={() => setPlatformFilter(platform)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                platformFilter === platform
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-200 ${platformFilter === platform
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
             >
               {PLATFORM_LABELS[platform]}
             </button>
@@ -138,18 +137,17 @@ export function GamesList() {
 
           <button
             onClick={() => setOnlyInstalled((prev) => !prev)}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-200 ${
-              onlyInstalled
-                ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/30"
-                : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-200 ${onlyInstalled
+              ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/30"
+              : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
           >
             <Shield className="w-3 h-3" />
-            OptiScaler Installed
+            {locales.gamesList.optiscalerFilter}
           </button>
 
           <span className="ml-auto text-xs text-muted-foreground font-medium">
-            {displayedGames.length} / {games.length} games
+            {displayedGames.length} / {games.length} {locales.gamesList.gamesCount}
           </span>
         </div>
       </div>
@@ -158,7 +156,7 @@ export function GamesList() {
         {isScanning ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground animate-in fade-in duration-300">
             <Loader2 className="w-10 h-10 mb-4 animate-spin text-primary/50" />
-            <p className="text-sm font-medium">Scanning your library...</p>
+            <p className="text-sm font-medium">{locales.gamesList.scanning}</p>
           </div>
         ) : displayedGames.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">

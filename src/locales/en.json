@@ -19,7 +19,9 @@
     "scanGames": "Scan Games",
     "addManual": "Add Manual",
     "search": "Search games...",
-    "gpu": "GPU"
+    "gpu": "GPU",
+    "detectingGpu": "Detecting GPU...",
+    "unknownGpu": "Unknown GPU"
   },
   "actions": {
     "installed": "Installed",
@@ -27,6 +29,9 @@
   },
   "gamesList": {
     "emptyStateTitle": "No Games Found",
-    "emptyStateDesc": "We couldn't detect any supported games. Try running a scan or adding them manually."
+    "emptyStateDesc": "We couldn't detect any supported games. Try running a scan or adding them manually.",
+    "scanning": "Scanning your library...",
+    "optiscalerFilter": "OptiScaler Installed",
+    "gamesCount": "games"
   }
 }
