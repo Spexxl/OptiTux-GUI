@@ -1,49 +1,53 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { Button } from "@/components/ui/button";
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
 
   async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
     setGreetMsg(await invoke("greet", { name }));
   }
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-background text-foreground transition-colors duration-300">
+      <div className="max-w-md w-full space-y-8 text-center">
+        <div className="flex justify-center space-x-6">
+          <img src="/vite.svg" className="h-20 w-20 animate-bounce" alt="Vite logo" />
+          <img src="/tauri.svg" className="h-20 w-20 animate-pulse" alt="Tauri logo" />
+        </div>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
+          OptiTux GUI
+        </h1>
+
+        <p className="text-muted-foreground">
+          Manage your Optiscaler installations with ease.
+        </p>
+
+        <form
+          className="flex space-x-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            greet();
+          }}
+        >
+          <input
+            id="greet-input"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            onChange={(e) => setName(e.currentTarget.value)}
+            placeholder="Enter your name..."
+          />
+          <Button type="submit">Greet</Button>
+        </form>
+
+        {greetMsg && (
+          <div className="p-4 rounded-lg bg-secondary text-secondary-foreground animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {greetMsg}
+          </div>
+        )}
       </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
     </main>
   );
 }
