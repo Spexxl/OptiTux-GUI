@@ -12,7 +12,7 @@ function App() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-sidebar dark:bg-[#121212] w-full p-2 gap-2">
+      <div className="flex h-screen bg-sidebar dark:bg-[#121212] w-full p-2 gap-2 overflow-hidden">
         <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         <main className="flex-1 bg-background dark:bg-[#0A0A0A] rounded-xl border border-border/50 shadow-inner overflow-hidden flex flex-col relative transition-all duration-300">
           <div className="flex flex-1 flex-col overflow-hidden">
