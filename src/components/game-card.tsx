@@ -52,7 +52,7 @@ export function GameCard({ game }: GameCardProps) {
         <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center space-y-3 p-4">
           {!game.isInstalled ? (
             <>
-              <Button size="sm" className="w-full bg-primary/95 hover:bg-primary text-white rounded-lg font-semibold gap-2 shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+              <Button size="sm" className="w-full bg-gray-400 hover:bg-gray-500 text-white rounded-lg font-semibold gap-2 shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                 <Sparkles className="w-4 h-4" />
                 {locales.gameCard.quickInstall}
               </Button>
