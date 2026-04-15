@@ -1,0 +1,12 @@
+{
+  "app": {
+    "title": "OptiTux"
+  },
+  "sidebar": {
+    "gamesList": "Games List",
+    "optiscalerVersions": "Optiscaler Versions",
+    "community": "Community",
+    "settings": "Settings",
+    "about": "About"
+  }
+}
