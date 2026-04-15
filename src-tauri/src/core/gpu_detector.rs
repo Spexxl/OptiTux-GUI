@@ -143,22 +143,32 @@ impl GpuDetector {
     }
 
     fn parse_gpu_string(raw_name: &str, pci_id: &str) -> Option<GpuInfo> {
-        let upper_line = raw_name.to_uppercase();
-        let vendor = if upper_line.contains("NVIDIA") {
-            "NVIDIA".to_string()
-        } else if upper_line.contains("AMD") || upper_line.contains("ATI") {
-            "AMD".to_string()
-        } else if upper_line.contains("INTEL") {
-            "Intel".to_string()
-        } else {
-            "Unknown".to_string()
-        };
-
-        let name = raw_name.split("VGA compatible controller:").nth(1)
+        let mut name = raw_name.split("VGA compatible controller:").nth(1)
             .or_else(|| raw_name.split("3D controller:").nth(1))
             .unwrap_or(raw_name)
             .trim()
             .to_string();
+
+        if let Some(bracket_content) = Self::extract_best_name(&name) {
+            name = bracket_content;
+        }
+
+        name = name.split("(rev").next().unwrap_or(&name).trim().to_string();
+        name = name.replace("Advanced Micro Devices, Inc. [AMD/ATI]", "")
+                   .replace("NVIDIA Corporation", "")
+                   .replace("Intel Corporation", "")
+                   .trim().to_string();
+
+        let upper_line = name.to_uppercase();
+        let vendor = if upper_line.contains("NVIDIA") || upper_line.contains("GEFORCE") {
+            "NVIDIA".to_string()
+        } else if upper_line.contains("AMD") || upper_line.contains("ATI") || upper_line.contains("RADEON") {
+            "AMD".to_string()
+        } else if upper_line.contains("INTEL") || upper_line.contains("ARC") {
+            "Intel".to_string()
+        } else {
+            "Unknown".to_string()
+        };
 
         let arch = Self::detect_architecture(&name, &vendor);
 
@@ -169,6 +179,34 @@ impl GpuDetector {
             architecture: arch,
             is_primary: false,
         })
+    }
+
+    fn extract_best_name(text: &str) -> Option<String> {
+        let mut best_name = None;
+        let mut last_bracket: Option<String> = None;
+        
+        let mut current_bracket = String::new();
+        let mut inside = false;
+        
+        for c in text.chars() {
+            if c == '[' {
+                inside = true;
+                current_bracket.clear();
+            } else if c == ']' && inside {
+                inside = false;
+                let found = current_bracket.trim().to_string();
+                let upper = found.to_uppercase();
+                
+                if upper.contains("RADEON") || upper.contains("GEFORCE") || upper.contains("RTX") || upper.contains("GTX") || upper.contains("ARC") {
+                    return Some(found);
+                }
+                last_bracket = Some(found);
+            } else if inside {
+                current_bracket.push(c);
+            }
+        }
+        
+        best_name.or(last_bracket)
     }
 
     fn detect_architecture(name: &str, vendor: &str) -> GpuArchitecture {

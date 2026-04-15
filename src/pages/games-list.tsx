@@ -6,10 +6,27 @@ import locales from "@/locales/en.json";
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
+interface GpuInfo {
+  name: string;
+  is_primary: boolean;
+}
+
 export function GamesList() {
-  const [gpuName] = useState("NVIDIA GeForce RTX 4070");
+  const [gpuName, setGpuName] = useState("Detecting GPU...");
   const [games, setGames] = useState<Game[]>([]);
   const [isScanning, setIsScanning] = useState(true);
+
+  const fetchGpu = async () => {
+    try {
+      const info = await invoke<GpuInfo | null>("get_gpu_info");
+      if (info) {
+        setGpuName(info.name);
+      }
+    } catch (e) {
+      console.error(e);
+      setGpuName("Unknown GPU");
+    }
+  };
 
   const fetchGames = async (forceRescan = false) => {
     setIsScanning(true);
@@ -27,6 +44,7 @@ export function GamesList() {
   };
 
   useEffect(() => {
+    fetchGpu();
     fetchGames(false);
   }, []);
 

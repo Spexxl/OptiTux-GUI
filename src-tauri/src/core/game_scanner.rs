@@ -10,10 +10,9 @@ pub struct ScannerManager;
 impl ScannerManager {
     pub async fn get_games(force_rescan: bool, custom_folders: &[String]) -> Vec<Game> {
         if !force_rescan {
-            if let Some(cached_games) = GameCache::load() {
-                if !cached_games.is_empty() {
-                    return cached_games;
-                }
+            let cached_games = GameCache::load();
+            if !cached_games.is_empty() {
+                return cached_games;
             }
         }
 
@@ -36,7 +35,7 @@ impl ScannerManager {
             metadata_tasks.push(async move {
                 let mut updated_game = game;
                 if updated_game.cover_url.is_none() {
-                    if let Ok(url) = metadata::get_game_cover(&updated_game.name).await {
+                    if let Some(url) = metadata::fetch_game_cover(&updated_game.name).await {
                         updated_game.cover_url = Some(url);
                     }
                 }
