@@ -2,6 +2,7 @@ import { RefreshCw, Plus, Search, Cpu, Ghost, Loader2, Shield } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GameCard, Game } from "@/components/game-card";
+import { ManualFoldersDialog } from "@/components/manual-folders-dialog";
 import locales from "@/locales/en.json";
 import { useState, useEffect, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
@@ -30,6 +31,7 @@ export function GamesList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [platformFilter, setPlatformFilter] = useState<PlatformFilter>("All");
   const [onlyInstalled, setOnlyInstalled] = useState(false);
+  const [isFoldersDialogOpen, setIsFoldersDialogOpen] = useState(false);
 
   const fetchGpu = async () => {
     try {
@@ -97,6 +99,7 @@ export function GamesList() {
               variant="secondary"
               size="sm"
               className="rounded-lg gap-2 text-xs font-semibold"
+              onClick={() => setIsFoldersDialogOpen(true)}
             >
               <Plus className="w-3.5 h-3.5" />
               {locales.toolbar.addManual}
@@ -174,6 +177,12 @@ export function GamesList() {
           </div>
         )}
       </div>
+
+      <ManualFoldersDialog 
+        isOpen={isFoldersDialogOpen}
+        onClose={() => setIsFoldersDialogOpen(false)}
+        onFoldersChanged={() => fetchGames(false)}
+      />
     </div>
   );
 }

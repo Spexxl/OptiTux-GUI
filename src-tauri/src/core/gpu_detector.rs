@@ -182,7 +182,7 @@ impl GpuDetector {
     }
 
     fn extract_best_name(text: &str) -> Option<String> {
-        let mut best_name = None;
+        let best_name = None;
         let mut last_bracket: Option<String> = None;
         
         let mut current_bracket = String::new();
