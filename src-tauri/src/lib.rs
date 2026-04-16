@@ -4,7 +4,10 @@ use crate::core::config::ConfigManager;
 use crate::core::game_scanner::ScannerManager;
 use crate::core::gpu_detector::{GpuDetector, GpuInfo};
 use crate::core::models::Game;
-use tauri::AppHandle;
+use crate::core::optiscaler::github::{GitHubClient, Release};
+use crate::core::optiscaler::manager::OptiScalerManager;
+use serde::Serialize;
+use tauri::{AppHandle, Emitter};
 
 #[tauri::command]
 async fn scan_games(
@@ -54,6 +57,100 @@ async fn uninstall_optiscaler(game: Game) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn get_online_releases() -> Result<Vec<Release>, String> {
+    GitHubClient::get_latest_releases()
+        .await
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn get_downloaded_versions() -> Vec<String> {
+    OptiScalerManager::get_downloaded_versions()
+}
+
+#[tauri::command]
+async fn remove_downloaded_version(folder_name: String) -> Result<(), String> {
+    OptiScalerManager::remove_downloaded_version(&folder_name)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn open_versions_folder() -> Result<(), String> {
+    let path = OptiScalerManager::versions_dir_pub()
+        .ok_or_else(|| "Could not determine versions directory.".to_string())?;
+    tauri_plugin_opener::open_path(path, None::<&str>)
+        .map_err(|e| e.to_string())
+}
+
+#[derive(Clone, Serialize)]
+struct DownloadProgress {
+    downloaded: u64,
+    total: u64,
+    percent: f64,
+    phase: String,
+}
+
+#[tauri::command]
+async fn download_optiscaler_version(
+    app: AppHandle,
+    _tag_name: String,
+    asset_name: String,
+    asset_url: String,
+    asset_size: u64,
+) -> Result<String, String> {
+    use crate::core::optiscaler::github::Asset;
+    use crate::core::optiscaler::manager::OptiScalerManager;
+
+    let asset = Asset {
+        name: asset_name,
+        browser_download_url: asset_url,
+        size: asset_size,
+    };
+
+    app.emit("download-progress", DownloadProgress {
+        downloaded: 0,
+        total: asset_size,
+        percent: 0.0,
+        phase: "downloading".to_string(),
+    }).ok();
+
+    let extract_dir = OptiScalerManager::download_and_extract(&asset)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    app.emit("download-progress", DownloadProgress {
+        downloaded: asset_size,
+        total: asset_size,
+        percent: 50.0,
+        phase: "checking_int8".to_string(),
+    }).ok();
+
+    let int8_already_present = OptiScalerManager::is_int8_present();
+
+    if !int8_already_present {
+        if let Ok(int8_asset) = GitHubClient::get_int8_addon().await {
+            app.emit("download-progress", DownloadProgress {
+                downloaded: 0,
+                total: int8_asset.size,
+                percent: 60.0,
+                phase: "downloading_int8".to_string(),
+            }).ok();
+
+            let _ = OptiScalerManager::download_int8(&int8_asset).await;
+        }
+    }
+
+    app.emit("download-progress", DownloadProgress {
+        downloaded: asset_size,
+        total: asset_size,
+        percent: 100.0,
+        phase: "done".to_string(),
+    }).ok();
+
+    Ok(extract_dir.to_string_lossy().to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -66,7 +163,12 @@ pub fn run() {
             get_custom_folders,
             add_custom_folder,
             remove_custom_folder,
-            uninstall_optiscaler
+            uninstall_optiscaler,
+            get_online_releases,
+            get_downloaded_versions,
+            remove_downloaded_version,
+            open_versions_folder,
+            download_optiscaler_version,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

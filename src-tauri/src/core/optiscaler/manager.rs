@@ -20,6 +20,29 @@ impl OptiScalerManager {
         }
     }
 
+    pub fn versions_dir_pub() -> Option<PathBuf> {
+        Self::versions_dir()
+    }
+
+    fn int8_path() -> Option<PathBuf> {
+        Self::versions_dir().map(|d| d.join("amd_fidelityfx_upscaler_dx12.dll"))
+    }
+
+    pub fn is_int8_present() -> bool {
+        Self::int8_path().map(|p| p.exists()).unwrap_or(false)
+    }
+
+    pub async fn download_int8(asset: &Asset) -> Result<PathBuf> {
+        let dir = Self::versions_dir()
+            .ok_or_else(|| anyhow!("Could not determine local data directory."))?;
+        let file_path = GitHubClient::download_asset(asset, &dir).await?;
+        let int8_path = dir.join("amd_fidelityfx_upscaler_dx12.dll");
+        if file_path != int8_path {
+            fs::rename(&file_path, &int8_path)?;
+        }
+        Ok(int8_path)
+    }
+
     pub async fn get_available_online() -> Result<Vec<Release>> {
         GitHubClient::get_latest_releases().await
     }

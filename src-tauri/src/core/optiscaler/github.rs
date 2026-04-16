@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use reqwest::Client;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 const GITHUB_API_URL_OFFICIAL: &str = "https://api.github.com/repos/optiscaler/OptiScaler/releases";
 const GITHUB_API_URL_PRE_RELEASE: &str = "https://api.github.com/repos/Spexxl/OptiTux-Database/releases";
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Release {
     pub tag_name: String,
     pub assets: Vec<Asset>,
@@ -16,7 +16,7 @@ pub struct Release {
     pub prerelease: bool,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Asset {
     pub name: String,
     pub browser_download_url: String,

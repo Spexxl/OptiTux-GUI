@@ -26,6 +26,30 @@
     "detectingGpu": "Detecting GPU...",
     "unknownGpu": "Unknown GPU"
   },
+  "optiscalerVersions": {
+    "title": "OptiScaler Versions",
+    "subtitle": "Download and manage OptiScaler releases.",
+    "sourceStable": "Stable",
+    "sourceDb": "OptiTuxDB",
+    "selectVersion": "Select a version",
+    "noVersionsAvailable": "No versions available",
+    "download": "Download",
+    "downloaded": "Downloaded",
+    "delete": "Delete",
+    "openFolder": "Open Folder",
+    "downloading": "Downloading...",
+    "downloadingInt8": "Downloading INT8 addon...",
+    "done": "Done!",
+    "error": "Error",
+    "loadingVersions": "Loading available versions...",
+    "loadError": "Failed to load releases. Check your connection.",
+    "localVersions": "Downloaded Versions",
+    "noLocalVersions": "No versions downloaded yet.",
+    "int8Included": "INT8 addon will be downloaded automatically",
+    "prerelease": "Database",
+    "stable": "Stable",
+    "retry": "Retry"
+  },
   "actions": {
     "installed": "Installed",
     "notInstalled": "Not Installed"
