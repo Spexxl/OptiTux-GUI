@@ -108,42 +108,60 @@ impl Installer {
         let game_dir = Self::get_target_dir(game)?;
         let manifest_path = game_dir.join("optiscaler_manifest.json");
 
-        if !manifest_path.exists() {
-            return Ok(());
-        }
+        let mut removed_any = false;
 
-        let json = fs::read_to_string(&manifest_path)?;
-        let manifest: InstallManifest = serde_json::from_str(&json)?;
+        if manifest_path.exists() {
+            let json = fs::read_to_string(&manifest_path)
+                .context("Failed to read optiscaler_manifest.json")?;
+            let manifest: InstallManifest = serde_json::from_str(&json)
+                .context("Failed to parse optiscaler_manifest.json")?;
 
-        let injection_path = game_dir.join(&manifest.injection_dll);
-        if injection_path.exists() {
-            let _ = fs::remove_file(&injection_path);
-        }
+            let dll_path = game_dir.join(&manifest.injection_dll);
+            if dll_path.exists() {
+                let backup_file = game_dir.join("OptiScalerBackup").join(&manifest.injection_dll);
+                if backup_file.exists() {
+                    if fs::copy(&backup_file, &dll_path).is_ok() {
+                        let _ = fs::remove_file(&backup_file);
+                        removed_any = true;
+                    }
+                } else if fs::remove_file(&dll_path).is_ok() {
+                    removed_any = true;
+                }
+            }
 
-        let backup_file = game_dir.join("OptiScalerBackup").join(&manifest.injection_dll);
-        if backup_file.exists() {
-            let _ = fs::copy(&backup_file, &injection_path);
-            let _ = fs::remove_file(&backup_file);
-        }
-
-        let extra_files = [
-            "OptiScaler.ini", "OptiScaler.log", "fakenvapi.dll", "fakenvapi.ini", 
-            "fakenvapi.log", "dlssg_to_fsr3_amd_is_better.dll", "dlssg_to_fsr3.log"
-        ];
-        for f in extra_files {
-            if let Ok(p) = game_dir.join(f).canonicalize() {
-                let _ = fs::remove_file(p);
-            } else {
-                let _ = fs::remove_file(game_dir.join(f));
+            if fs::remove_file(&manifest_path).is_ok() {
+                removed_any = true;
             }
         }
 
-        let extra_dirs = ["D3D12_Optiscaler", "DlssOverrides", "Licenses"];
-        for d in extra_dirs {
-            let _ = fs::remove_dir_all(game_dir.join(d));
+        let extra_files = [
+            "OptiScaler.ini", "OptiScaler.log", "fakenvapi.dll", "fakenvapi.ini",
+            "fakenvapi.log", "dlssg_to_fsr3_amd_is_better.dll", "dlssg_to_fsr3.log",
+        ];
+
+        if let Ok(entries) = fs::read_dir(&game_dir) {
+            for entry in entries.flatten() {
+                if let Ok(file_name) = entry.file_name().into_string() {
+                    let lower_name = file_name.to_lowercase();
+                    if extra_files.iter().any(|&f| f.to_lowercase() == lower_name) {
+                        let _ = fs::remove_file(entry.path());
+                        removed_any = true;
+                    }
+                }
+            }
         }
 
-        let _ = fs::remove_file(manifest_path);
+        let extra_dirs = ["D3D12_Optiscaler", "DlssOverrides", "Licenses", "OptiScalerBackup"];
+        for d in extra_dirs {
+            let dir_path = game_dir.join(d);
+            if dir_path.exists() {
+                let _ = fs::remove_dir_all(&dir_path);
+            }
+        }
+
+        if !removed_any {
+            return Err(anyhow!("No OptiScaler files were found to remove in {:?}", game_dir));
+        }
 
         Ok(())
     }
@@ -155,11 +173,25 @@ impl Installer {
             return true;
         }
 
-        if let Ok(entries) = fs::read_dir(dir) {
+        if let Ok(entries) = fs::read_dir(&dir) {
             for entry in entries.flatten() {
                 if let Ok(file_name) = entry.file_name().into_string() {
-                    if file_name.to_lowercase() == "optiscaler.ini" {
+                    let lower_name = file_name.to_lowercase();
+                    if lower_name == "optiscaler.ini" {
                         return true;
+                    }
+                }
+            }
+        }
+
+        let backup_dir = dir.join("OptiScalerBackup");
+        if backup_dir.exists() {
+            if let Ok(entries) = fs::read_dir(&backup_dir) {
+                for entry in entries.flatten() {
+                    if let Ok(file_name) = entry.file_name().into_string() {
+                        if dir.join(&file_name).exists() {
+                            return true;
+                        }
                     }
                 }
             }

@@ -10,8 +10,11 @@ pub struct ScannerManager;
 impl ScannerManager {
     pub async fn get_games(force_rescan: bool, custom_folders: &[String]) -> Vec<Game> {
         if !force_rescan {
-            let cached_games = GameCache::load();
+            let mut cached_games = GameCache::load();
             if !cached_games.is_empty() {
+                for game in &mut cached_games {
+                    game.is_optiscaler_installed = Installer::is_installed(game);
+                }
                 return cached_games;
             }
         }

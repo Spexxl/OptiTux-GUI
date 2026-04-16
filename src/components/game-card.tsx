@@ -1,6 +1,8 @@
-import { Sparkles, Download, Trash2, Check, Target } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, Download, Trash2, Check, Target, Loader2, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { invoke } from "@tauri-apps/api/core";
 import locales from "@/locales/en.json";
 
 export interface Game {
@@ -16,16 +18,97 @@ export interface Game {
 
 interface GameCardProps {
   game: Game;
+  onUninstallSuccess?: (appId: string) => void;
 }
 
-export function GameCard({ game }: GameCardProps) {
+type UninstallState = "idle" | "loading" | "done" | "error";
+
+export function GameCard({ game, onUninstallSuccess }: GameCardProps) {
   const platformDisplay = game.platform === "Custom" ? "Manual" : game.platform;
-  const isInstalled = game.is_optiscaler_installed;
+  const [isInstalled, setIsInstalled] = useState(game.is_optiscaler_installed);
+  const [uninstallState, setUninstallState] = useState<UninstallState>("idle");
 
   const techBadgeStyles: Record<string, string> = {
     DLSS: "bg-green-500/10 text-green-500",
     FSR: "bg-red-500/10 text-red-500",
     XeSS: "bg-blue-500/10 text-blue-500",
+  };
+
+  const handleUninstall = async () => {
+    if (uninstallState === "loading") return;
+
+    setUninstallState("loading");
+
+    try {
+      await invoke("uninstall_optiscaler", { game });
+      setUninstallState("done");
+
+      setTimeout(() => {
+        setIsInstalled(false);
+        setUninstallState("idle");
+        onUninstallSuccess?.(game.app_id);
+      }, 1800);
+    } catch (e) {
+      console.error(e);
+      setUninstallState("error");
+      setTimeout(() => setUninstallState("idle"), 2500);
+    }
+  };
+
+  const renderUninstallButton = () => {
+    if (uninstallState === "loading") {
+      return (
+        <Button
+          variant="destructive"
+          size="sm"
+          disabled
+          className="w-full rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-all duration-300 opacity-90"
+        >
+          <Loader2 className="w-4 h-4 animate-spin" />
+          {locales.gameCard.uninstalling}
+        </Button>
+      );
+    }
+
+    if (uninstallState === "done") {
+      return (
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled
+          className="w-full rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-all duration-300 bg-green-500/20 text-green-400 border-green-500/30"
+        >
+          <CheckCircle2 className="w-4 h-4" />
+          {locales.gameCard.uninstallDone}
+        </Button>
+      );
+    }
+
+    if (uninstallState === "error") {
+      return (
+        <Button
+          variant="destructive"
+          size="sm"
+          disabled
+          className="w-full rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-all duration-300 opacity-70"
+        >
+          <Trash2 className="w-4 h-4" />
+          {locales.gameCard.uninstallError}
+        </Button>
+      );
+    }
+
+    return (
+      <Button
+        variant="destructive"
+        size="sm"
+        className="w-full rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+        onClick={handleUninstall}
+      >
+        <Trash2 className="w-4 h-4" />
+        {locales.gameCard.uninstall}
+      </Button>
+    );
   };
 
   return (
@@ -78,10 +161,7 @@ export function GameCard({ game }: GameCardProps) {
               </Button>
             </>
           ) : (
-            <Button variant="destructive" size="sm" className="w-full rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-              <Trash2 className="w-4 h-4" />
-              {locales.gameCard.uninstall}
-            </Button>
+            renderUninstallButton()
           )}
         </div>
       </div>

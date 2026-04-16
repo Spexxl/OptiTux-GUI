@@ -76,6 +76,14 @@ export function GamesList() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [games, searchTerm, platformFilter, onlyInstalled]);
 
+  const handleUninstallSuccess = (appId: string) => {
+    setGames((prev) =>
+      prev.map((g) =>
+        g.app_id === appId ? { ...g, is_optiscaler_installed: false } : g
+      )
+    );
+  };
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden animate-in fade-in duration-500">
       <div className="flex shrink-0 flex-col gap-3 px-8 py-4 border-b border-border/40 bg-background/50 backdrop-blur-md z-10">
@@ -177,7 +185,7 @@ export function GamesList() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
               {displayedGames.map((game) => (
-                <GameCard key={game.app_id} game={game} />
+                <GameCard key={game.app_id} game={game} onUninstallSuccess={handleUninstallSuccess} />
               ))}
             </div>
           )}

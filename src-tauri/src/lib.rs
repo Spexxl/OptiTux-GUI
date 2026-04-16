@@ -48,6 +48,12 @@ async fn get_gpu_info() -> Option<GpuInfo> {
     GpuDetector::detect_gpus().into_iter().find(|g| g.is_primary)
 }
 
+#[tauri::command]
+async fn uninstall_optiscaler(game: Game) -> Result<(), String> {
+    crate::core::optiscaler::installer::Installer::uninstall(&game)
+        .map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -59,7 +65,8 @@ pub fn run() {
             get_gpu_info,
             get_custom_folders,
             add_custom_folder,
-            remove_custom_folder
+            remove_custom_folder,
+            uninstall_optiscaler
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -13,6 +13,9 @@
     "quickInstall": "Quick Install",
     "install": "Install",
     "uninstall": "Uninstall",
+    "uninstalling": "Uninstalling...",
+    "uninstallDone": "Removed!",
+    "uninstallError": "Failed",
     "installedStatus": "Installed"
   },
   "toolbar": {
