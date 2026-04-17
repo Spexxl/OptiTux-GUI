@@ -225,6 +225,7 @@ impl Installer {
         let gpu = GpuDetector::detect_gpus().into_iter().find(|g| g.is_primary);
         let arch = gpu.map(|g| g.architecture).unwrap_or(GpuArchitecture::Unknown);
 
+        let needs_int8 = matches!(arch, GpuArchitecture::RDNA1_2_3);
         let injection = InjectionMethod::Dxgi;
 
         let downloaded_versions = OptiScalerManager::get_downloaded_versions();
@@ -253,19 +254,16 @@ impl Installer {
             on_progress("downloading", 20.0);
 
             let extract_dir = OptiScalerManager::download_and_extract(&asset).await?;
-
-            on_progress("checking_int8", 55.0);
-
-            if !OptiScalerManager::is_int8_present() {
-                if let Ok(int8_asset) = GitHubClient::get_int8_addon().await {
-                    on_progress("downloading_int8", 60.0);
-                    let _ = OptiScalerManager::download_int8(&int8_asset).await;
-                }
-            }
-
             on_progress("installing", 80.0);
             extract_dir
         };
+
+        if needs_int8 && !OptiScalerManager::is_int8_present() {
+            if let Ok(int8_asset) = GitHubClient::get_int8_addon().await {
+                on_progress("downloading_int8", 60.0);
+                let _ = OptiScalerManager::download_int8(&int8_asset).await;
+            }
+        }
 
         let version_name = version_path
             .file_name()
@@ -280,11 +278,13 @@ impl Installer {
         );
 
         let game_dir = Self::get_target_dir(game)?;
-        let _ = ProfileGenerator::generate_ini(&game_dir, &arch, use_dlss_spoofing);
+        let _ = ProfileGenerator::update_ini(&game_dir, &arch, use_dlss_spoofing);
 
-        if OptiScalerManager::is_int8_present() {
+        if needs_int8 {
             if let Some(int8_path) = OptiScalerManager::int8_path_pub() {
-                let _ = Self::install_int8(game, &int8_path);
+                if int8_path.exists() {
+                    let _ = Self::install_int8(game, &int8_path);
+                }
             }
         }
 
