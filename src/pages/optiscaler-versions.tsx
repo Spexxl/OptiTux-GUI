@@ -29,6 +29,7 @@ interface Release {
   tag_name: string;
   assets: Asset[];
   prerelease: boolean;
+  source: string;
 }
 
 interface DownloadProgress {
@@ -68,9 +69,7 @@ export function OptiscalerVersions() {
   const [downloadProgress, setDownloadProgress] = useState<DownloadProgress | null>(null);
   const [deletingVersion, setDeletingVersion] = useState<string | null>(null);
 
-  const filteredReleases = allReleases.filter((r) =>
-    sourceTab === "stable" ? !r.prerelease : r.prerelease
-  );
+  const filteredReleases = allReleases.filter((r) => r.source === sourceTab);
 
   const selectedRelease = filteredReleases.find((r) => r.tag_name === selectedVersion);
   const selectedAsset = selectedRelease?.assets.find((a) =>

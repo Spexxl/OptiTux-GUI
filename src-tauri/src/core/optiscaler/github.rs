@@ -14,6 +14,8 @@ pub struct Release {
     pub assets: Vec<Asset>,
     #[serde(default)]
     pub prerelease: bool,
+    #[serde(default)]
+    pub source: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -34,7 +36,10 @@ impl GitHubClient {
         let mut all_releases = Vec::new();
 
         if let Ok(response) = client.get(GITHUB_API_URL_OFFICIAL).send().await {
-            if let Ok(releases) = response.json::<Vec<Release>>().await {
+            if let Ok(mut releases) = response.json::<Vec<Release>>().await {
+                for r in &mut releases {
+                    r.source = "stable".to_string();
+                }
                 all_releases.extend(releases);
             }
         }
@@ -43,7 +48,7 @@ impl GitHubClient {
             if let Ok(mut db_releases) = response.json::<Vec<Release>>().await {
                 db_releases.retain(|r| r.tag_name != "INT8");
                 for r in &mut db_releases {
-                    r.prerelease = true;
+                    r.source = "db".to_string();
                 }
                 all_releases.extend(db_releases);
             }
