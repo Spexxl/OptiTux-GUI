@@ -77,12 +77,6 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
               <p className="text-xs text-muted-foreground">Add directories to scan for games</p>
             </div>
           </div>
-          <button
-            onClick={handleClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
-          >
-            ✕
-          </button>
         </div>
 
         <div className="px-6 py-4 space-y-3">
