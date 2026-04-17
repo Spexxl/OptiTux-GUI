@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Sparkles, Download, Trash2, Check, Target, Loader2, CheckCircle2, FolderOpen } from "lucide-react";
+import { Sparkles, Download, Trash2, Check, Target, Loader2, CheckCircle2, FolderOpen, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { CoverEditDialog } from "@/components/cover-edit-dialog";
 import locales from "@/locales/en.json";
 
 export interface Game {
@@ -27,6 +28,12 @@ export function GameCard({ game, onUninstallSuccess }: GameCardProps) {
   const platformDisplay = game.platform === "Custom" ? "Manual" : game.platform;
   const [isInstalled, setIsInstalled] = useState(game.is_optiscaler_installed);
   const [uninstallState, setUninstallState] = useState<UninstallState>("idle");
+  const [coverUrl, setCoverUrl] = useState(game.cover_url);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const displayUrl = coverUrl?.startsWith("/")
+    ? convertFileSrc(coverUrl)
+    : coverUrl;
 
   const techBadgeStyles: Record<string, string> = {
     DLSS: "bg-green-500/10 text-green-500",
@@ -114,11 +121,11 @@ export function GameCard({ game, onUninstallSuccess }: GameCardProps) {
   return (
     <div className="group relative flex flex-col space-y-3 w-full animate-in fade-in zoom-in-95 duration-300">
       <div className="relative aspect-3/4 rounded-xl overflow-hidden bg-muted border border-border/50 shadow-lg flex flex-col">
-        {game.cover_url ? (
+        {displayUrl ? (
           <div
             className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
             style={{
-              backgroundImage: `url(${game.cover_url})`,
+              backgroundImage: `url(${displayUrl})`,
               backgroundColor: "#1a1a1a"
             }}
           />
@@ -147,7 +154,7 @@ export function GameCard({ game, onUninstallSuccess }: GameCardProps) {
           )}
         </div>
 
-        <div className="absolute top-3 right-3 flex gap-2">
+        <div className="absolute top-3 right-3 flex gap-1.5">
           <Button
             size="icon"
             variant="secondary"
@@ -158,6 +165,18 @@ export function GameCard({ game, onUninstallSuccess }: GameCardProps) {
             }}
           >
             <FolderOpen className="w-4 h-4" />
+          </Button>
+
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-7 w-7 bg-black/60 backdrop-blur-md text-white border-none hover:bg-black/80 transition-all duration-300 rounded-lg shadow-xl hover:scale-110 active:scale-95 z-10"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsEditDialogOpen(true);
+            }}
+          >
+            <Pencil className="w-3.5 h-3.5" />
           </Button>
         </div>
 
@@ -193,6 +212,14 @@ export function GameCard({ game, onUninstallSuccess }: GameCardProps) {
           ))}
         </div>
       </div>
+
+      <CoverEditDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        appId={game.app_id}
+        gameName={game.name}
+        onCoverChanged={setCoverUrl}
+      />
     </div>
   );
 }

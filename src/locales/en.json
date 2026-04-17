@@ -18,6 +18,21 @@
     "uninstallError": "Failed",
     "installedStatus": "Installed"
   },
+  "coverEditDialog": {
+    "title": "Edit Cover Art",
+    "subtitle": "Set a custom cover image for this game",
+    "urlTab": "URL",
+    "uploadTab": "Upload",
+    "urlLabel": "Image URL",
+    "urlPlaceholder": "https://example.com/cover.jpg",
+    "uploadLabel": "Local Image",
+    "uploadButton": "Choose Image...",
+    "uploadSelected": "Image selected",
+    "save": "Save Cover",
+    "reset": "Reset to Default",
+    "resetConfirm": "Fetching original cover...",
+    "close": "Close"
+  },
   "toolbar": {
     "scanGames": "Scan Games",
     "addManual": "Add Manual",

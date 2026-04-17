@@ -15,11 +15,51 @@ async fn scan_games(
     force_rescan: bool,
     mut custom_folders: Vec<String>,
 ) -> Vec<Game> {
+    let config = ConfigManager::load(&app);
     if custom_folders.is_empty() {
-        let config = ConfigManager::load(&app);
-        custom_folders = config.custom_folders;
+        custom_folders = config.custom_folders.clone();
     }
-    ScannerManager::get_games(force_rescan, &custom_folders).await
+    ScannerManager::get_games(force_rescan, &custom_folders, &config.custom_covers).await
+}
+
+#[tauri::command]
+async fn fetch_auto_cover(game_name: String) -> Option<String> {
+    crate::core::metadata::fetch_game_cover(&game_name).await
+}
+
+#[tauri::command]
+async fn set_custom_cover(app: AppHandle, app_id: String, cover_url: String) -> Result<(), String> {
+    let mut config = ConfigManager::load(&app);
+    config.custom_covers.insert(app_id, cover_url);
+    ConfigManager::save(&app, &config);
+    Ok(())
+}
+
+#[tauri::command]
+async fn save_cover_image(app_id: String, bytes: Vec<u8>, extension: String) -> Result<String, String> {
+    use directories::ProjectDirs;
+
+    let proj_dirs = ProjectDirs::from("com", "OptiTux", "OptiTux")
+        .ok_or_else(|| "Could not determine config directory".to_string())?;
+
+    let covers_dir = proj_dirs.config_dir().join("covers");
+    std::fs::create_dir_all(&covers_dir)
+        .map_err(|e: std::io::Error| e.to_string())?;
+
+    let filename = format!("{}.{}", app_id, extension);
+    let file_path = covers_dir.join(&filename);
+    std::fs::write(&file_path, &bytes)
+        .map_err(|e: std::io::Error| e.to_string())?;
+
+    Ok(file_path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+async fn remove_custom_cover(app: AppHandle, app_id: String) -> Result<(), String> {
+    let mut config = ConfigManager::load(&app);
+    config.custom_covers.remove(&app_id);
+    ConfigManager::save(&app, &config);
+    Ok(())
 }
 
 #[tauri::command]
@@ -184,6 +224,10 @@ pub fn run() {
             remove_downloaded_version,
             open_versions_folder,
             open_game_folder,
+            set_custom_cover,
+            save_cover_image,
+            remove_custom_cover,
+            fetch_auto_cover,
             download_optiscaler_version,
         ])
         .run(tauri::generate_context!())

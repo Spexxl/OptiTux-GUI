@@ -2,16 +2,19 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
     pub custom_folders: Vec<String>,
+    pub custom_covers: HashMap<String, String>,
 }
 
 impl Default for AppConfig {
     fn default() -> Self {
         Self {
             custom_folders: Vec::new(),
+            custom_covers: HashMap::new(),
         }
     }
 }

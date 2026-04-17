@@ -5,15 +5,20 @@ use crate::core::cache::GameCache;
 use crate::core::optiscaler::installer::Installer;
 use futures::future::join_all;
 
+use std::collections::HashMap;
+
 pub struct ScannerManager;
 
 impl ScannerManager {
-    pub async fn get_games(force_rescan: bool, custom_folders: &[String]) -> Vec<Game> {
+    pub async fn get_games(force_rescan: bool, custom_folders: &[String], custom_covers: &HashMap<String, String>) -> Vec<Game> {
         if !force_rescan {
             let mut cached_games = GameCache::load();
             if !cached_games.is_empty() {
                 for game in &mut cached_games {
                     game.is_optiscaler_installed = Installer::is_installed(game);
+                    if let Some(custom_url) = custom_covers.get(&game.app_id) {
+                        game.cover_url = Some(custom_url.clone());
+                    }
                 }
                 return cached_games;
             }
@@ -61,8 +66,16 @@ impl ScannerManager {
             });
         }
 
-        let final_games = join_all(metadata_tasks).await;
+        let mut final_games = join_all(metadata_tasks).await;
+        
         let _ = GameCache::save(&final_games);
+
+        for game in &mut final_games {
+            if let Some(custom_url) = custom_covers.get(&game.app_id) {
+                game.cover_url = Some(custom_url.clone());
+            }
+        }
+
         final_games
     }
 }

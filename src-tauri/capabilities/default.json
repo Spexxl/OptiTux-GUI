@@ -2,7 +2,9 @@
   "$schema": "../gen/schemas/capability.json",
   "identifier": "default",
   "description": "Default capability for the main window",
-  "windows": ["main"],
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:path:default",
     "core:event:default",
