@@ -1,13 +1,31 @@
 use anyhow::{anyhow, Result};
 use directories::ProjectDirs;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
 use crate::core::optiscaler::github::{Asset, GitHubClient, Release};
 
 pub struct OptiScalerManager;
 
 impl OptiScalerManager {
+    fn extract_7z(archive: &Path, dest: &Path) -> Result<()> {
+        for bin in &["7zz", "7z"] {
+            let status = Command::new(bin)
+                .args(["x", "-y", &archive.to_string_lossy(), &format!("-o{}", dest.to_string_lossy())])
+                .status();
+
+            if let Ok(s) = status {
+                if s.success() {
+                    return Ok(());
+                }
+            }
+        }
+
+        sevenz_rust::decompress_file(archive, dest)
+            .map_err(|e| anyhow!("Failed to extract 7z (no system binary found, sevenz fallback): {}", e))
+    }
+
     fn versions_dir() -> Option<PathBuf> {
         if let Some(proj_dirs) = ProjectDirs::from("com", "OptiTux", "OptiTux") {
             let data_dir = proj_dirs.data_dir().join("versions");
@@ -66,8 +84,7 @@ impl OptiScalerManager {
             .unwrap_or("");
 
         if ext == "7z" {
-            sevenz_rust::decompress_file(&archive_path, &extract_dir)
-                .map_err(|e| anyhow!("Failed to extract INT8 7z: {}", e))?;
+            Self::extract_7z(&archive_path, &extract_dir)?;
         } else if ext == "zip" {
             let file = fs::File::open(&archive_path)?;
             let mut archive = zip::ZipArchive::new(file)?;
@@ -139,8 +156,7 @@ impl OptiScalerManager {
 
         if let Some(ext) = archive_path.extension().and_then(|s| s.to_str()) {
             if ext == "7z" {
-                sevenz_rust::decompress_file(&archive_path, &extract_dir)
-                    .map_err(|e| anyhow!("Failed to extract 7z archive: {}", e))?;
+                Self::extract_7z(&archive_path, &extract_dir)?;
             } else if ext == "zip" {
                 let file = fs::File::open(&archive_path)?;
                 let mut archive = zip::ZipArchive::new(file)?;
