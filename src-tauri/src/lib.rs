@@ -225,6 +225,26 @@ async fn quick_install_optiscaler(app: AppHandle, game: Game) -> Result<(), Stri
     .map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn custom_install_optiscaler(
+    app: AppHandle,
+    game: Game,
+    version_folder: String,
+    upscaler: String,
+    install_int8: bool,
+    enable_framegen: bool,
+    is_mfg_version: bool,
+) -> Result<(), String> {
+    Installer::custom_install(&game, &version_folder, &upscaler, install_int8, enable_framegen, is_mfg_version, |phase, percent| {
+        app.emit("custom-install-progress", QuickInstallProgress {
+            phase: phase.to_string(),
+            percent,
+        }).ok();
+    })
+    .await
+    .map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -249,6 +269,7 @@ pub fn run() {
             fetch_auto_cover,
             download_optiscaler_version,
             quick_install_optiscaler,
+            custom_install_optiscaler,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -16,6 +16,36 @@ impl ProfileGenerator {
 
         let dxgi_override = if use_dlss_spoofing { "auto" } else { "false" };
 
+        Self::patch_ini(game_dir, dx11, dx12, vk, ffx_backend, dxgi_override, None)
+    }
+
+    pub fn update_ini_custom(
+        game_dir: &Path,
+        upscaler: &str,
+        use_dlss_spoofing: bool,
+        enable_framegen: Option<bool>,
+    ) -> Result<()> {
+        let (dx11, dx12, vk, ffx_backend) = match upscaler {
+            "fsr" => ("fsr31_12", "fsr31", "fsr31_12", "0"),
+            "dlss" => ("dlss", "dlss", "dlss", "auto"),
+            "xess" => ("xess", "xess", "xess", "auto"),
+            _ => ("fsr31", "fsr31", "fsr31", "1"),
+        };
+
+        let dxgi_override = if use_dlss_spoofing { "auto" } else { "false" };
+
+        Self::patch_ini(game_dir, dx11, dx12, vk, ffx_backend, dxgi_override, enable_framegen)
+    }
+
+    fn patch_ini(
+        game_dir: &Path,
+        dx11: &str,
+        dx12: &str,
+        vk: &str,
+        ffx_backend: &str,
+        dxgi_override: &str,
+        enable_framegen: Option<bool>,
+    ) -> Result<()> {
         let ini_path = game_dir.join("OptiScaler.ini");
         if !ini_path.exists() {
             return Ok(());
@@ -27,7 +57,7 @@ impl ProfileGenerator {
 
         for line in lines.iter_mut() {
             let trimmed = line.trim();
-            
+
             if trimmed.starts_with('[') && trimmed.ends_with(']') {
                 current_section = trimmed[1..trimmed.len()-1].to_lowercase();
                 continue;
@@ -39,7 +69,7 @@ impl ProfileGenerator {
 
             if let Some(pos) = line.find('=') {
                 let key = line[..pos].trim();
-                
+
                 match current_section.as_str() {
                     "upscalers" => {
                         match key {
@@ -59,6 +89,16 @@ impl ProfileGenerator {
                             *line = format!("Dxgi={}", dxgi_override);
                         }
                     }
+                    "framegen" => {
+                        if let Some(true) = enable_framegen {
+                            match key {
+                                "Enabled" => *line = "Enabled=true".to_string(),
+                                "FGInput" => *line = "FGInput=upscaler".to_string(),
+                                "FGOutput" => *line = "FGOutput=xefg".to_string(),
+                                _ => {}
+                            }
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -69,3 +109,4 @@ impl ProfileGenerator {
         Ok(())
     }
 }
+

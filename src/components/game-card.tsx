@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { CoverEditDialog } from "@/components/cover-edit-dialog";
+import { InstallDialog } from "@/components/install-dialog";
 import locales from "@/locales/en.json";
 
 export interface Game {
@@ -34,6 +35,7 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
   const [coverUrl, setCoverUrl] = useState(game.cover_url);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [quickInstallPhase, setQuickInstallPhase] = useState<QuickInstallPhase>("idle");
+  const [isInstallDialogOpen, setIsInstallDialogOpen] = useState(false);
 
   const displayUrl = coverUrl?.startsWith("/")
     ? convertFileSrc(coverUrl)
@@ -195,7 +197,7 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
         ) : (
           <div className="absolute inset-0 bg-[#1a1a1a] flex flex-col items-center justify-center p-4 text-center transition-transform duration-500 group-hover:scale-110">
             <Target className="w-12 h-12 text-muted-foreground/30 mb-3" />
-            <span className="font-bold text-lg text-muted-foreground/50 uppercase tracking-widest break-words w-full px-2" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+            <span className="font-bold text-lg text-muted-foreground/50 uppercase tracking-widest wrap-break-word w-full px-2" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
               {game.name}
             </span>
           </div>
@@ -256,7 +258,12 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
                 {getQuickInstallLabel()}
               </Button>
 
-              <Button variant="secondary" size="sm" className="w-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border-white/10 rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+              <Button
+                variant="secondary"
+                size="sm"
+                className="w-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border-white/10 rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75"
+                onClick={() => setIsInstallDialogOpen(true)}
+              >
                 <Download className="w-4 h-4" />
                 {locales.gameCard.install}
               </Button>
@@ -287,6 +294,16 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
         appId={game.app_id}
         gameName={game.name}
         onCoverChanged={setCoverUrl}
+      />
+
+      <InstallDialog
+        isOpen={isInstallDialogOpen}
+        onClose={() => setIsInstallDialogOpen(false)}
+        game={game}
+        onInstallSuccess={(appId) => {
+          setIsInstalled(true);
+          onInstallSuccess?.(appId);
+        }}
       />
     </div>
   );

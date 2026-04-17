@@ -293,6 +293,60 @@ impl Installer {
         Ok(())
     }
 
+    pub async fn custom_install<F>(
+        game: &Game,
+        version_folder: &str,
+        upscaler: &str,
+        install_int8: bool,
+        enable_framegen: bool,
+        is_mfg: bool,
+        on_progress: F,
+    ) -> Result<()>
+    where
+        F: Fn(&str, f64),
+    {
+        on_progress("starting", 0.0);
+
+        let injection = InjectionMethod::Dxgi;
+
+        let version_path = OptiScalerManager::get_version_path(version_folder)
+            .ok_or_else(|| anyhow!("Could not resolve version path for '{}'.", version_folder))?;
+
+        on_progress("installing", 40.0);
+
+        let version_name = version_path
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_else(|| "unknown".to_string());
+
+        Self::install(game, &version_path, &version_name, injection)?;
+
+        on_progress("configuring", 70.0);
+
+        let use_dlss_spoofing = upscaler != "dlss";
+
+        let game_dir = Self::get_target_dir(game)?;
+        let _ = ProfileGenerator::update_ini_custom(&game_dir, upscaler, use_dlss_spoofing, if is_mfg { None } else { Some(enable_framegen) });
+
+        if install_int8 {
+            if !OptiScalerManager::is_int8_present() {
+                if let Ok(int8_asset) = GitHubClient::get_int8_addon().await {
+                    on_progress("downloading_int8", 80.0);
+                    let _ = OptiScalerManager::download_int8(&int8_asset).await;
+                }
+            }
+            if let Some(int8_path) = OptiScalerManager::int8_path_pub() {
+                if int8_path.exists() {
+                    let _ = Self::install_int8(game, &int8_path);
+                }
+            }
+        }
+
+        on_progress("done", 100.0);
+
+        Ok(())
+    }
+
     pub(crate) fn get_target_dir(game: &Game) -> Result<PathBuf> {
         if let Some(exe_path) = &game.executable_path {
             if let Some(parent) = Path::new(exe_path).parent() {
@@ -302,15 +356,4 @@ impl Installer {
         Ok(PathBuf::from(&game.install_path))
     }
 
-    fn find_optiscaler_dll(version_dir: &Path) -> Result<PathBuf> {
-        for entry in WalkDir::new(version_dir).into_iter().filter_map(|e| e.ok()) {
-            if entry.file_type().is_file() {
-                let name = entry.file_name().to_string_lossy().to_lowercase();
-                if name == "optiscaler.dll" || name == "nvngx.dll" {
-                    return Ok(entry.path().to_path_buf());
-                }
-            }
-        }
-        Err(anyhow!("OptiScaler DLL not found within the selected version directory."))
-    }
 }
