@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Download, Trash2, Check, Target, Loader2, CheckCircle2 } from "lucide-react";
+import { Sparkles, Download, Trash2, Check, Target, Loader2, CheckCircle2, FolderOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { invoke } from "@tauri-apps/api/core";
@@ -145,6 +145,20 @@ export function GameCard({ game, onUninstallSuccess }: GameCardProps) {
               {locales.gameCard.installedStatus}
             </Badge>
           )}
+        </div>
+
+        <div className="absolute top-3 right-3 flex gap-2">
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-7 w-7 bg-black/60 backdrop-blur-md text-white border-none hover:bg-black/80 transition-all duration-300 rounded-lg shadow-xl hover:scale-110 active:scale-95 z-10"
+            onClick={(e) => {
+              e.stopPropagation();
+              invoke("open_game_folder", { game });
+            }}
+          >
+            <FolderOpen className="w-4 h-4" />
+          </Button>
         </div>
 
         <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center space-y-3 p-4">

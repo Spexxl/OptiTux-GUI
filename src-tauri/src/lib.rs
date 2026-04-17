@@ -83,6 +83,21 @@ async fn open_versions_folder() -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn open_game_folder(game: Game) -> Result<(), String> {
+    let path_str = game.executable_path.unwrap_or(game.install_path);
+    let path = std::path::Path::new(&path_str);
+    
+    let folder = if path.is_file() {
+        path.parent().unwrap_or(path)
+    } else {
+        path
+    };
+
+    tauri_plugin_opener::open_path(folder.to_string_lossy().to_string(), None::<&str>)
+        .map_err(|e| e.to_string())
+}
+
 #[derive(Clone, Serialize)]
 struct DownloadProgress {
     downloaded: u64,
@@ -168,6 +183,7 @@ pub fn run() {
             get_downloaded_versions,
             remove_downloaded_version,
             open_versions_folder,
+            open_game_folder,
             download_optiscaler_version,
         ])
         .run(tauri::generate_context!())
