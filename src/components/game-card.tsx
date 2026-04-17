@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { Sparkles, Download, Trash2, Check, Target, Loader2, CheckCircle2, FolderOpen, Pencil } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Sparkles, Download, Trash2, Check, Target, Loader2, CheckCircle2, FolderOpen, Pencil, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { CoverEditDialog } from "@/components/cover-edit-dialog";
 import locales from "@/locales/en.json";
 
@@ -20,16 +21,19 @@ export interface Game {
 interface GameCardProps {
   game: Game;
   onUninstallSuccess?: (appId: string) => void;
+  onInstallSuccess?: (appId: string) => void;
 }
 
 type UninstallState = "idle" | "loading" | "done" | "error";
+type QuickInstallPhase = "idle" | "fetching" | "downloading" | "downloading_int8" | "installing" | "done" | "error";
 
-export function GameCard({ game, onUninstallSuccess }: GameCardProps) {
+export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCardProps) {
   const platformDisplay = game.platform === "Custom" ? "Manual" : game.platform;
   const [isInstalled, setIsInstalled] = useState(game.is_optiscaler_installed);
   const [uninstallState, setUninstallState] = useState<UninstallState>("idle");
   const [coverUrl, setCoverUrl] = useState(game.cover_url);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [quickInstallPhase, setQuickInstallPhase] = useState<QuickInstallPhase>("idle");
 
   const displayUrl = coverUrl?.startsWith("/")
     ? convertFileSrc(coverUrl)
@@ -39,6 +43,65 @@ export function GameCard({ game, onUninstallSuccess }: GameCardProps) {
     DLSS: "bg-green-500/10 text-green-500",
     FSR: "bg-red-500/10 text-red-500",
     XeSS: "bg-blue-500/10 text-blue-500",
+  };
+
+  const handleQuickInstall = useCallback(async () => {
+    if (quickInstallPhase !== "idle") return;
+
+    setQuickInstallPhase("fetching");
+
+    const unlisten = await listen<{ phase: string; percent: number }>("quick-install-progress", (event) => {
+      const { phase } = event.payload;
+      if (phase === "fetching") setQuickInstallPhase("fetching");
+      else if (phase === "downloading") setQuickInstallPhase("downloading");
+      else if (phase === "downloading_int8") setQuickInstallPhase("downloading_int8");
+      else if (phase === "installing") setQuickInstallPhase("installing");
+      else if (phase === "done") setQuickInstallPhase("done");
+    });
+
+    try {
+      await invoke("quick_install_optiscaler", { game });
+      setQuickInstallPhase("done");
+      setTimeout(() => {
+        setIsInstalled(true);
+        setQuickInstallPhase("idle");
+        onInstallSuccess?.(game.app_id);
+      }, 2000);
+    } catch (e) {
+      console.error(e);
+      setQuickInstallPhase("error");
+      setTimeout(() => setQuickInstallPhase("idle"), 2500);
+    } finally {
+      unlisten();
+    }
+  }, [game, quickInstallPhase, onInstallSuccess]);
+
+  const getQuickInstallLabel = () => {
+    const l = locales.gameCard;
+    switch (quickInstallPhase) {
+      case "fetching": return l.quickInstallDownloading;
+      case "downloading": return l.quickInstallDownloading;
+      case "downloading_int8": return l.quickInstallDownloadingInt8;
+      case "installing": return l.quickInstalling;
+      case "done": return l.quickInstallDone;
+      case "error": return l.quickInstallError;
+      default: return l.quickInstall;
+    }
+  };
+
+  const getQuickInstallIcon = () => {
+    if (quickInstallPhase === "done") return <CheckCircle2 className="w-4 h-4" />;
+    if (quickInstallPhase === "error") return <AlertCircle className="w-4 h-4" />;
+    if (quickInstallPhase !== "idle") return <Loader2 className="w-4 h-4 animate-spin" />;
+    return <Sparkles className="w-4 h-4" />;
+  };
+
+  const quickInstallBtnClass = () => {
+    const base = "w-full rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-all duration-300";
+    if (quickInstallPhase === "done") return `${base} bg-green-500/90 hover:bg-green-500 text-white`;
+    if (quickInstallPhase === "error") return `${base} bg-red-500/80 hover:bg-red-500 text-white`;
+    if (quickInstallPhase !== "idle") return `${base} bg-gray-500/80 text-white cursor-not-allowed`;
+    return `${base} bg-gray-400 hover:bg-gray-500 text-white shadow-xl hover:scale-[1.02] active:scale-[0.98]`;
   };
 
   const handleUninstall = async () => {
@@ -183,9 +246,14 @@ export function GameCard({ game, onUninstallSuccess }: GameCardProps) {
         <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center space-y-3 p-4">
           {!isInstalled ? (
             <>
-              <Button size="sm" className="w-full bg-gray-400 hover:bg-gray-500 text-white rounded-lg font-semibold gap-2 shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                <Sparkles className="w-4 h-4" />
-                {locales.gameCard.quickInstall}
+              <Button
+                size="sm"
+                className={quickInstallBtnClass()}
+                disabled={quickInstallPhase !== "idle"}
+                onClick={handleQuickInstall}
+              >
+                {getQuickInstallIcon()}
+                {getQuickInstallLabel()}
               </Button>
 
               <Button variant="secondary" size="sm" className="w-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border-white/10 rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75">

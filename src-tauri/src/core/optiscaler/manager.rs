@@ -44,6 +44,10 @@ impl OptiScalerManager {
         Self::int8_path().map(|p| p.exists()).unwrap_or(false)
     }
 
+    pub fn int8_path_pub() -> Option<PathBuf> {
+        Self::int8_path()
+    }
+
     pub async fn download_int8(asset: &Asset) -> Result<PathBuf> {
         let dir = Self::addons_dir()
             .ok_or_else(|| anyhow!("Could not determine local data directory."))?;

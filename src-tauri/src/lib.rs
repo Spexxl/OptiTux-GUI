@@ -5,6 +5,7 @@ use crate::core::game_scanner::ScannerManager;
 use crate::core::gpu_detector::{GpuDetector, GpuInfo};
 use crate::core::models::Game;
 use crate::core::optiscaler::github::{GitHubClient, Release};
+use crate::core::optiscaler::installer::Installer;
 use crate::core::optiscaler::manager::OptiScalerManager;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
@@ -206,6 +207,24 @@ async fn download_optiscaler_version(
     Ok(extract_dir.to_string_lossy().to_string())
 }
 
+#[derive(Clone, Serialize)]
+struct QuickInstallProgress {
+    phase: String,
+    percent: f64,
+}
+
+#[tauri::command]
+async fn quick_install_optiscaler(app: AppHandle, game: Game) -> Result<(), String> {
+    Installer::quick_install(&game, |phase, percent| {
+        app.emit("quick-install-progress", QuickInstallProgress {
+            phase: phase.to_string(),
+            percent,
+        }).ok();
+    })
+    .await
+    .map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -229,6 +248,7 @@ pub fn run() {
             remove_custom_cover,
             fetch_auto_cover,
             download_optiscaler_version,
+            quick_install_optiscaler,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

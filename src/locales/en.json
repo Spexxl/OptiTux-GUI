@@ -16,7 +16,13 @@
     "uninstalling": "Uninstalling...",
     "uninstallDone": "Removed!",
     "uninstallError": "Failed",
-    "installedStatus": "Installed"
+    "installedStatus": "Installed",
+    "quickInstalling": "Installing...",
+    "quickInstallDownloading": "Downloading...",
+    "quickInstallDownloadingInt8": "Downloading INT8...",
+    "quickInstallExtracting": "Extracting...",
+    "quickInstallDone": "Installed!",
+    "quickInstallError": "Failed"
   },
   "coverEditDialog": {
     "title": "Edit Cover Art",

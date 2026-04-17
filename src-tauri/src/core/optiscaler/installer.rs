@@ -1,8 +1,12 @@
+use crate::core::gpu_detector::{GpuArchitecture, GpuDetector};
 use crate::core::models::Game;
+use crate::core::optiscaler::github::GitHubClient;
+use crate::core::optiscaler::manager::OptiScalerManager;
+use crate::core::optiscaler::profile::ProfileGenerator;
+use anyhow::{anyhow, Context, Result};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
-use anyhow::{anyhow, Context, Result};
 use walkdir::WalkDir;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -212,7 +216,84 @@ impl Installer {
         None
     }
 
-    fn get_target_dir(game: &Game) -> Result<PathBuf> {
+    pub async fn quick_install<F>(game: &Game, on_progress: F) -> Result<()>
+    where
+        F: Fn(&str, f64),
+    {
+        on_progress("starting", 0.0);
+
+        let gpu = GpuDetector::detect_gpus().into_iter().find(|g| g.is_primary);
+        let arch = gpu.map(|g| g.architecture).unwrap_or(GpuArchitecture::Unknown);
+
+        let injection = InjectionMethod::Dxgi;
+
+        let downloaded_versions = OptiScalerManager::get_downloaded_versions();
+        let stable_folder = downloaded_versions.into_iter().find(|v| !v.to_lowercase().contains("db"));
+
+        let version_path = if let Some(folder_name) = stable_folder {
+            on_progress("installing", 20.0);
+            OptiScalerManager::get_version_path(&folder_name)
+                .ok_or_else(|| anyhow!("Could not resolve local version path."))?
+        } else {
+            on_progress("fetching", 10.0);
+
+            let releases = GitHubClient::get_latest_releases().await?;
+
+            let latest_stable = releases
+                .into_iter()
+                .find(|r| r.source == "stable" && !r.prerelease)
+                .ok_or_else(|| anyhow!("No stable release found online."))?;
+
+            let asset = latest_stable
+                .assets
+                .into_iter()
+                .find(|a| a.name.ends_with(".zip") || a.name.ends_with(".7z"))
+                .ok_or_else(|| anyhow!("No downloadable asset found in latest stable release."))?;
+
+            on_progress("downloading", 20.0);
+
+            let extract_dir = OptiScalerManager::download_and_extract(&asset).await?;
+
+            on_progress("checking_int8", 55.0);
+
+            if !OptiScalerManager::is_int8_present() {
+                if let Ok(int8_asset) = GitHubClient::get_int8_addon().await {
+                    on_progress("downloading_int8", 60.0);
+                    let _ = OptiScalerManager::download_int8(&int8_asset).await;
+                }
+            }
+
+            on_progress("installing", 80.0);
+            extract_dir
+        };
+
+        let version_name = version_path
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_else(|| "unknown".to_string());
+
+        Self::install(game, &version_path, &version_name, injection)?;
+
+        let use_dlss_spoofing = matches!(
+            arch,
+            GpuArchitecture::RDNA4 | GpuArchitecture::RDNA1_2_3 | GpuArchitecture::IntelArc | GpuArchitecture::GTX
+        );
+
+        let game_dir = Self::get_target_dir(game)?;
+        let _ = ProfileGenerator::generate_ini(&game_dir, &arch, use_dlss_spoofing);
+
+        if OptiScalerManager::is_int8_present() {
+            if let Some(int8_path) = OptiScalerManager::int8_path_pub() {
+                let _ = Self::install_int8(game, &int8_path);
+            }
+        }
+
+        on_progress("done", 100.0);
+
+        Ok(())
+    }
+
+    pub(crate) fn get_target_dir(game: &Game) -> Result<PathBuf> {
         if let Some(exe_path) = &game.executable_path {
             if let Some(parent) = Path::new(exe_path).parent() {
                 return Ok(parent.to_path_buf());
