@@ -24,8 +24,20 @@ impl OptiScalerManager {
         Self::versions_dir()
     }
 
+    fn addons_dir() -> Option<PathBuf> {
+        if let Some(proj_dirs) = ProjectDirs::from("com", "OptiTux", "OptiTux") {
+            let addons_dir = proj_dirs.data_dir().join("addons");
+            if !addons_dir.exists() {
+                let _ = fs::create_dir_all(&addons_dir);
+            }
+            Some(addons_dir)
+        } else {
+            None
+        }
+    }
+
     fn int8_path() -> Option<PathBuf> {
-        Self::versions_dir().map(|d| d.join("amd_fidelityfx_upscaler_dx12.dll"))
+        Self::addons_dir().map(|d| d.join("amd_fidelityfx_upscaler_dx12.dll"))
     }
 
     pub fn is_int8_present() -> bool {
@@ -33,7 +45,7 @@ impl OptiScalerManager {
     }
 
     pub async fn download_int8(asset: &Asset) -> Result<PathBuf> {
-        let dir = Self::versions_dir()
+        let dir = Self::addons_dir()
             .ok_or_else(|| anyhow!("Could not determine local data directory."))?;
         let file_path = GitHubClient::download_asset(asset, &dir).await?;
         let int8_path = dir.join("amd_fidelityfx_upscaler_dx12.dll");

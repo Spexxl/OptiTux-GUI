@@ -192,22 +192,24 @@ export function OptiscalerVersions() {
           <div className="px-6 pt-6 pb-4 space-y-5">
             <div className="flex items-center gap-2 p-1 bg-muted/40 rounded-xl w-fit border border-border/20">
               <button
+                disabled={downloadState === "downloading"}
                 onClick={() => setSourceTab("stable")}
                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
                   sourceTab === "stable"
                     ? "bg-background shadow-sm text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground disabled:opacity-50"
                 }`}
               >
-                <Sparkles className="w-3 h-3" />
+                <RefreshCw className={`w-3 h-3 ${downloadState === "downloading" ? "animate-spin" : ""}`} />
                 {l.sourceStable}
               </button>
               <button
+                disabled={downloadState === "downloading"}
                 onClick={() => setSourceTab("db")}
                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
                   sourceTab === "db"
                     ? "bg-background shadow-sm text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground disabled:opacity-50"
                 }`}
               >
                 <Database className="w-3 h-3" />
@@ -243,9 +245,10 @@ export function OptiscalerVersions() {
                     {l.selectVersion}
                   </label>
                   <select
+                    disabled={downloadState === "downloading"}
                     value={selectedVersion}
                     onChange={(e) => setSelectedVersion(e.target.value)}
-                    className="w-full bg-background border border-border/50 rounded-xl px-3 py-2 text-sm font-medium appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
+                    className="w-full bg-background border border-border/50 rounded-xl px-3 py-2 text-sm font-medium appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {filteredReleases.length === 0 ? (
                       <option value="">{l.noVersionsAvailable}</option>
