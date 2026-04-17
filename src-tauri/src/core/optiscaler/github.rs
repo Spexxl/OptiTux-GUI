@@ -68,23 +68,27 @@ impl GitHubClient {
 
         let url = "https://api.github.com/repos/Spexxl/OptiTux-Database/releases/tags/INT8";
         let response = client.get(url).send().await?;
-        
+
         if !response.status().is_success() {
             return Err(anyhow!("INT8 release not found or rate limited."));
         }
 
         let release = response.json::<Release>().await?;
-        
-        if release.assets.is_empty() {
-            return Err(anyhow!("No assets found in the INT8 release."));
-        }
 
-        Ok(release.assets[0].clone())
+        release
+            .assets
+            .into_iter()
+            .find(|a| {
+                let name = a.name.to_lowercase();
+                name.ends_with(".7z") || name.ends_with(".zip")
+            })
+            .ok_or_else(|| anyhow!("No archive asset found in the INT8 release."))
     }
 
     pub async fn download_asset(asset: &Asset, target_dir: &Path) -> Result<PathBuf> {
         let client = Client::builder()
             .user_agent("OptiTux-GUI")
+            .redirect(reqwest::redirect::Policy::limited(10))
             .build()?;
 
         let response = client.get(&asset.browser_download_url).send().await?;

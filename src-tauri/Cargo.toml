@@ -7,7 +7,7 @@ description = "Optiscaler interface manager for Linux."
 
 [dependencies]
 tokio = { version = "1.36", features = ["full"] }
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "gzip", "deflate", "stream"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 directories = "5.0"

@@ -51,11 +51,48 @@ impl OptiScalerManager {
     pub async fn download_int8(asset: &Asset) -> Result<PathBuf> {
         let dir = Self::addons_dir()
             .ok_or_else(|| anyhow!("Could not determine local data directory."))?;
-        let file_path = GitHubClient::download_asset(asset, &dir).await?;
-        let int8_path = dir.join("amd_fidelityfx_upscaler_dx12.dll");
-        if file_path != int8_path {
-            fs::rename(&file_path, &int8_path)?;
+
+        let archive_path = GitHubClient::download_asset(asset, &dir).await?;
+
+        let extract_dir = dir.join("int8_extract_tmp");
+        if extract_dir.exists() {
+            fs::remove_dir_all(&extract_dir)?;
         }
+        fs::create_dir_all(&extract_dir)?;
+
+        let ext = archive_path
+            .extension()
+            .and_then(|s| s.to_str())
+            .unwrap_or("");
+
+        if ext == "7z" {
+            sevenz_rust::decompress_file(&archive_path, &extract_dir)
+                .map_err(|e| anyhow!("Failed to extract INT8 7z: {}", e))?;
+        } else if ext == "zip" {
+            let file = fs::File::open(&archive_path)?;
+            let mut archive = zip::ZipArchive::new(file)?;
+            archive.extract(&extract_dir)?;
+        }
+
+        let _ = fs::remove_file(&archive_path);
+
+        let dll_source = walkdir::WalkDir::new(&extract_dir)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .find(|e| {
+                e.file_type().is_file()
+                    && e.file_name()
+                        .to_string_lossy()
+                        .to_lowercase()
+                        == "amd_fidelityfx_upscaler_dx12.dll"
+            })
+            .map(|e| e.path().to_path_buf())
+            .ok_or_else(|| anyhow!("amd_fidelityfx_upscaler_dx12.dll not found inside INT8 archive"))?;
+
+        let int8_path = dir.join("amd_fidelityfx_upscaler_dx12.dll");
+        fs::copy(&dll_source, &int8_path)?;
+        let _ = fs::remove_dir_all(&extract_dir);
+
         Ok(int8_path)
     }
 
