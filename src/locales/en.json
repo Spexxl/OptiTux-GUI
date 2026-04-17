@@ -81,5 +81,13 @@
     "scanning": "Scanning your library...",
     "optiscalerFilter": "OptiScaler Installed",
     "gamesCount": "games"
+  },
+  "community": {
+    "title": "Community HUB",
+    "subtitle": "Future Feature",
+    "description": "This future feature will allow users to publish, download, and rate custom or derived versions of OptiScaler, as well as specific presets and fixes for games and GPUs provided by the community.",
+    "supportNotice": "Developing and maintaining this infrastructure has server and development costs. If you would like to contribute, please consider supporting the project.",
+    "supportPatreon": "Support on Patreon",
+    "supportBuyMeACoffee": "Buy me a Coffee"
   }
 }
