@@ -105,10 +105,13 @@ Flatpak is a universal format that runs in a sandbox, ensuring the program works
        flatpak install ./com.sll.optitux-gui.flatpak
        ```
     3. Follow the on-screen instructions and confirm the installation of dependencies (GNOME runtimes) if prompted.
-*   **How to run:** The app will appear in your system menu. If it doesn't appear immediately, restart your session or use the command:
-    ```bash
-    flatpak run com.sll.optitux-gui
-    ```
+*   **How to run:** The app will appear in your system menu.
+*   **⚠️ Troubleshooting (Missing Icon):** On some distributions (especially Arch-based like **CachyOS**, Manjaro, or EndeavourOS), the app icon might not appear immediately after installation. To fix this:
+    *   **Restart your session:** Log out and log back in, or simply reboot your system. This forces the desktop environment to refresh the Flatpak export paths.
+    *   **Manual Run:** You can always launch it via terminal while the icon doesn't show:
+      ```bash
+      flatpak run com.sll.optitux-gui 
+      ```
 
 ### 🔹 `.tar.gz` (Portable / Generic)
 This is a compressed file containing the program's binary. It can be run on any Linux distribution as long as the system has the base libraries installed.

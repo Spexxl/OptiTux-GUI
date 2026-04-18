@@ -22,6 +22,9 @@
         "install -D optitux /app/bin/optitux",
         "mkdir -p /app/share/icons",
         "cp -r usr/share/icons/* /app/share/icons/",
+        "find /app/share/icons -name \"optitux_gui.png\" -execdir mv {} com.sll.optitux-gui.png \\;",
+        "sed -i 's/Icon=optitux_gui/Icon=com.sll.optitux-gui/' usr/share/applications/OptiTux.desktop",
+        "sed -i 's/Exec=optitux_gui/Exec=optitux/' usr/share/applications/OptiTux.desktop",
         "install -D usr/share/applications/OptiTux.desktop /app/share/applications/com.sll.optitux-gui.desktop"
       ],
       "sources": [
