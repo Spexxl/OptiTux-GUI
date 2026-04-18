@@ -101,16 +101,15 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
         </div>
 
         <div className="px-6 pt-4 pb-2">
-          <div className="flex gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/5">
+          <div className="flex gap-1 p-1 rounded-xl bg-white/4 border border-white/5">
             {(["url", "upload"] as TabId[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                  activeTab === tab
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${activeTab === tab
                     ? "bg-primary/90 text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                }`}
+                  }`}
               >
                 {tab === "url" ? <Link className="w-3.5 h-3.5" /> : <Upload className="w-3.5 h-3.5" />}
                 {tab === "url" ? l.urlTab : l.uploadTab}
@@ -130,10 +129,10 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
                 placeholder={l.urlPlaceholder}
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
-                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/50 focus:bg-primary/5 transition-all duration-200"
+                className="w-full bg-white/4 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/50 focus:bg-primary/5 transition-all duration-200"
               />
               {urlInput && (
-                <div className="mt-3 rounded-xl overflow-hidden border border-white/10 aspect-[3/4] max-h-48 w-32 relative bg-white/[0.03]">
+                <div className="mt-3 rounded-xl overflow-hidden border border-white/10 aspect-3/4 max-h-48 w-32 relative bg-white/3">
                   <img
                     src={urlInput}
                     alt="Cover preview"
@@ -163,7 +162,7 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
                 {selectedFile ? l.uploadSelected : l.uploadButton}
               </button>
               {selectedFile && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/3 border border-white/5">
                   {previewUrl && (
                     <div className="w-12 h-16 rounded-lg overflow-hidden border border-white/10 shrink-0">
                       <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />

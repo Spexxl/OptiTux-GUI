@@ -102,7 +102,7 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
               folders.map((path) => (
                 <div
                   key={path}
-                  className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-all group"
+                  className="flex items-center justify-between p-3 rounded-xl bg-white/3 border border-white/5 hover:border-white/10 transition-all group"
                 >
                   <div className="flex flex-col min-w-0 pr-3">
                     <span className="text-xs font-semibold text-foreground/90 truncate">
