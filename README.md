@@ -41,7 +41,6 @@ OptiTux GUI is built with [Tauri](https://tauri.app/) and runs on Linux.
 **Runtime dependencies (required):**
 
 - A working desktop environment with WebView support (WebKitGTK)
-- A Proton-compatible game setup (Steam, Heroic, or manual Wine/Proton prefix)
 
 **Optional but recommended:**
 
