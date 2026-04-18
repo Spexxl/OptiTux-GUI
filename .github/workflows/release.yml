@@ -39,10 +39,10 @@ jobs:
           WEBKIT_DISABLE_COMPOSITING_MODE: 1
           WEBKIT_DISABLE_DMABUF_RENDERER: 1
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'OptiTux v__VERSION__'
+          tagName: ${{ github.ref_name == 'main' && 'v0.1.0-draft' || github.ref_name }}
+          releaseName: 'OptiTux Draft Release'
           releaseBody: |
-            ## OptiTux v__VERSION__
+            ## OptiTux Automatic Build (Draft)
 
             | Plataforma | Arquivo |
             |---|---|
@@ -70,18 +70,19 @@ jobs:
           mkdir -p flatpak_app
           ar x src-tauri/target/release/bundle/deb/OptiTux_*_amd64.deb
           bsdtar -xf data.tar.* -C flatpak_app/
-          cp flatpak_app/usr/bin/* flatpak_app/optitux
+          cp $(find flatpak_app/usr/bin -type f) flatpak_app/optitux
           
+          # Instalar Runtime e SDK do GNOME 45 necessários para o build
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          flatpak install --user -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+          flatpak install --user -y flathub org.gnome.Platform//45 org.gnome.Sdk//45
           
           flatpak-builder --user --repo=repo --force-clean build-dir com.sll.optitux-gui.json
           flatpak build-bundle repo OptiTux.flatpak com.sll.optitux-gui
 
       - name: Upload Extra Formats to Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
+          tag_name: ${{ github.ref_name == 'main' && 'v0.1.0-draft' || github.ref_name }}
           files: |
             OptiTux.flatpak
             OptiTux-x86_64.pkg.tar.zst

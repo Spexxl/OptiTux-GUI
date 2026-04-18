@@ -1,8 +1,8 @@
 {
   "app-id": "com.sll.optitux-gui",
-  "runtime": "org.freedesktop.Platform",
-  "runtime-version": "23.08",
-  "sdk": "org.freedesktop.Sdk",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "45",
+  "sdk": "org.gnome.Sdk",
   "command": "optitux",
   "separate-locales": false,
   "finish-args": [
