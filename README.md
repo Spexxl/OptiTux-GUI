@@ -68,26 +68,6 @@ Used to accurately detect your GPU model and architecture. Without it, GPU detec
 
 ---
 
-## Installation
-
-### Arch Linux / Manjaro / EndeavourOS / CachyOS
-You can install OptiTux natively on Arch-based systems using the `PKGBUILD` provided in this repository.
-
-1. Download the `PKGBUILD` file from this repository.
-2. Open a terminal in the folder where you saved the file and run:
-   ```bash
-   makepkg -si
-   ```
-   *This command will handle dependencies and install the app.*
-
-### Debian / Ubuntu / Fedora / Nobara
-For other distributions, please download the native package from our [Releases](https://github.com/Spexxl/OptiTux-GUI/releases) page:
-
-- **Debian / Ubuntu / Mint:** Download the [latest .deb](https://github.com/Spexxl/OptiTux-GUI/releases) and install with `sudo apt install ./file.deb`
-- **Fedora / RHEL / Nobara:** Download the [latest .rpm](https://github.com/Spexxl/OptiTux-GUI/releases) and install with `sudo dnf install ./file.rpm`
-
----
-
 ## Building from source
 
 You will need [Rust](https://rustup.rs/) and [Node.js](https://nodejs.org/) installed.
