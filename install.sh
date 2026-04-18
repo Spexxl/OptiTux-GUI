@@ -19,11 +19,12 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-# Get the latest version from GitHub API
-VERSION=$(curl -s https://api.github.com/repos/Spexxl/OptiTux-GUI/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+# Get the latest version from GitHub API with a robust fallback
+VERSION=$(curl -s https://api.github.com/repos/Spexxl/OptiTux-GUI/releases/latest | grep '"tag_name":' | head -n 1 | cut -d '"' -f 4 | sed 's/^v//' || echo "0.1.0")
 
-if [ -z "$VERSION" ]; then
-    VERSION="0.1.0" # Fallback
+# Final check to ensure VERSION is not empty or invalid
+if [[ ! "$VERSION" =~ ^[0-9] ]]; then
+    VERSION="0.1.0"
 fi
 
 echo -e "${BLUE}==>${NC} Latest Version: ${GREEN}v$VERSION${NC}"
