@@ -69,7 +69,7 @@ jobs:
         run: |
           mkdir -p flatpak_app
           ar x src-tauri/target/release/bundle/deb/OptiTux_*_amd64.deb
-          tar -xJf data.tar.xz -C flatpak_app/
+          bsdtar -xf data.tar.* -C flatpak_app/
           cp src-tauri/target/release/optitux flatpak_app/
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           flatpak-builder --repo=repo --force-clean build-dir com.sll.optitux-gui.json
