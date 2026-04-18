@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "optitux-gui",
+        "title": "OptiTux",
         "width": 1200,
         "height": 900,
         "minWidth": 1200,
