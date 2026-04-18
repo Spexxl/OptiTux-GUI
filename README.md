@@ -68,6 +68,28 @@ Used to accurately detect your GPU model and architecture. Without it, GPU detec
 
 ---
 
+## Installation
+
+The easiest way to install OptiTux GUI on any supported distribution (Ubuntu, Fedora, Arch, etc.) is with our universal installer script:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/Spexxl/OptiTux-GUI/main/install.sh | sudo bash
+```
+
+*This script will automatically detect your distribution, install required dependencies, and fetch the latest native package.*
+
+---
+
+### Manual Installation (Optional)
+
+If you prefer to install packages manually, download the latest version from the [Releases](https://github.com/Spexxl/OptiTux-GUI/releases) page:
+
+- **Debian / Ubuntu / Mint:** Install the `.deb` using `sudo apt install ./file.deb`
+- **Fedora / RHEL:** Install the `.rpm` using `sudo dnf install ./file.rpm`
+- **Arch / Manjaro:** Download the `PKGBUILD` and run `makepkg -si`
+
+---
+
 ## Building from source
 
 You will need [Rust](https://rustup.rs/) and [Node.js](https://nodejs.org/) installed.

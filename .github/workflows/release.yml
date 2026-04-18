@@ -46,7 +46,6 @@ jobs:
 
             | Plataforma | Arquivo |
             |---|---|
-            | Linux Universal | `.AppImage` |
             | Linux Debian/Ubuntu | `.deb` |
             | Linux Fedora/RHEL | `.rpm` |
           releaseDraft: true
