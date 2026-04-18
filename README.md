@@ -107,7 +107,7 @@ Flatpak is a universal format that runs in a sandbox, ensuring the program works
     1. Download the `.flatpak` file.
     2. Since this is a local package (bundle), it should be installed via terminal to ensure that permissions and runtime dependencies are correctly pulled:
        ```bash
-       flatpak install ./com.sll.optitux-gui.flatpak
+       flatpak install ./optitux-gui.flatpak
        ```
     3. Follow the on-screen instructions and confirm the installation of dependencies (GNOME runtimes) if prompted.
 *   **How to run:** The app will appear in your system menu.
@@ -115,7 +115,7 @@ Flatpak is a universal format that runs in a sandbox, ensuring the program works
     *   **Restart your session:** Log out and log back in, or simply reboot your system. This forces the desktop environment to refresh the Flatpak export paths.
     *   **Manual Run:** You can always launch it via terminal while the icon doesn't show:
       ```bash
-      flatpak run com.sll.optitux-gui 
+      flatpak run optitux-gui 
       ```
 
 ### 🔹 `.tar.gz` (Portable / Generic)
