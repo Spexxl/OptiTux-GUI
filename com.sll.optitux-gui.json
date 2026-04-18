@@ -1,0 +1,34 @@
+{
+  "app-id": "com.sll.optitux-gui",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "23.08",
+  "sdk": "org.freedesktop.Sdk",
+  "command": "optitux",
+  "separate-locales": false,
+  "finish-args": [
+    "--share=network",
+    "--share=ipc",
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--device=dri",
+    "--filesystem=host",
+    "--talk-name=org.freedesktop.Notifications"
+  ],
+  "modules": [
+    {
+      "name": "optitux",
+      "buildsystem": "simple",
+      "build-commands": [
+        "install -D optitux /app/bin/optitux",
+        "cp -r usr/share/icons /app/share/icons",
+        "install -D usr/share/applications/OptiTux.desktop /app/share/applications/com.sll.optitux-gui.desktop"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "flatpak_app"
+        }
+      ]
+    }
+  ]
+}
