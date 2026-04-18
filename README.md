@@ -71,11 +71,14 @@ Used to accurately detect your GPU model and architecture. Without it, GPU detec
 ## Installation
 
 ### Arch Linux / Manjaro / EndeavourOS / CachyOS
-The easiest way to install OptiTux GUI on Arch-based distributions is with our automated script:
+You can install OptiTux natively on Arch-based systems using the `PKGBUILD` provided in this repository.
 
-```bash
-curl -sSL https://raw.githubusercontent.com/Spexxl/OptiTux-GUI/main/install.sh | sudo bash
-```
+1. Download the `PKGBUILD` file from this repository.
+2. Open a terminal in the folder where you saved the file and run:
+   ```bash
+   makepkg -si
+   ```
+   *This command will handle dependencies and install the app.*
 
 ### Debian / Ubuntu / Fedora / Nobara
 For other distributions, please download the native package from our [Releases](https://github.com/Spexxl/OptiTux-GUI/releases) page:
