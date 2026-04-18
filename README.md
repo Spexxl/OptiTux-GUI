@@ -68,7 +68,72 @@ Used to accurately detect your GPU model and architecture. Without it, GPU detec
 
 ---
 
-## Building from source
+## 📦 Installation Guide
+
+All installation files can be found on the [**GitHub Releases page**](https://github.com/Spexxl/OptiTux-GUI/releases). Choose the format that best fits your Linux distribution.
+
+### 🔹 `.deb` (Debian, Ubuntu, Linux Mint, Pop!_OS)
+Ideal for Debian and Ubuntu-based distributions.
+
+*   **How to install:** 
+    1. Download the `.deb` file.
+    2. **Double-click** the file to open it with your interface's package installer (such as GNOME Software or GDebi Package Installer).
+    3. Alternatively, install via terminal:
+       ```bash
+       sudo apt install ./optitux-gui_amd64.deb
+       ```
+
+### 🔹 `.rpm` (Fedora, Nobara, openSUSE, RHEL)
+Ideal for distributions that use the RPM package manager.
+
+*   **How to install:** 
+    1. Download the `.rpm` file.
+    2. **Double-click** the file to open it with the Software Center (GNOME Software, Discover).
+    3. Alternatively, install via terminal:
+       ```bash
+       sudo dnf install ./optitux-gui.rpm
+       ```
+
+### 🔹 `.flatpak` (Universal)
+Flatpak is a universal format that runs in a sandbox, ensuring the program works regardless of the libraries installed on your main system.
+
+*   **Requirements:** You must have Flatpak support enabled on your distro. If you don't have it, follow the instructions at [flatpak.org/setup](https://flatpak.org/setup/).
+*   **How to install:** 
+    1. Download the `.flatpak` file.
+    2. Since this is a local package (bundle), it should be installed via terminal to ensure that permissions and runtime dependencies are correctly pulled:
+       ```bash
+       flatpak install ./com.sll.optitux-gui.flatpak
+       ```
+    3. Follow the on-screen instructions and confirm the installation of dependencies (GNOME runtimes) if prompted.
+*   **How to run:** The app will appear in your system menu. If it doesn't appear immediately, restart your session or use the command:
+    ```bash
+    flatpak run com.sll.optitux-gui
+    ```
+
+### 🔹 `.tar.gz` (Portable / Generic)
+This is a compressed file containing the program's binary. It can be run on any Linux distribution as long as the system has the base libraries installed.
+
+*   **Requirements:** Make sure you have the runtime dependencies listed in the [Requirements](#requirements) section (such as `webkit2gtk`, `p7zip`, and `pciutils`).
+*   **How to install:**
+    1. Download and extract the file:
+       ```bash
+       tar -xzf optitux-gui.tar.gz
+       ```
+    2. Enter the extracted folder:
+       ```bash
+       cd optitux-gui
+       ```
+    3. Give execution permission to the binary (if necessary):
+       ```bash
+       chmod +x optitux
+       ```
+    4. Run the program:
+       ```bash
+       ./optitux
+       ```
+*   **Tip:** You can move the extracted folder to a permanent location (like `/opt` or `~/.local/bin`) and manually create a `.desktop` file so it appears in your menu.
+
+---
 
 You will need [Rust](https://rustup.rs/) and [Node.js](https://nodejs.org/) installed.
 
