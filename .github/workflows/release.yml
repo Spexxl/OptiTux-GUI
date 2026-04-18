@@ -70,7 +70,6 @@ jobs:
           mkdir -p flatpak_app
           ar x src-tauri/target/release/bundle/deb/OptiTux_*_amd64.deb
           bsdtar -xf data.tar.* -C flatpak_app/
-          # Encontrar o executável (independente de Maiúsculas/Minúsculas) e copiar para a raiz
           cp $(find flatpak_app/usr/bin -type f -iname "optitux") flatpak_app/optitux
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           flatpak-builder --repo=repo --force-clean build-dir com.sll.optitux-gui.json
