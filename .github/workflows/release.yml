@@ -1,11 +1,7 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   release:
@@ -33,25 +29,10 @@ jobs:
         run: npm install
 
       - name: Build the app (DEB and RPM)
-        uses: tauri-apps/tauri-action@v0
+        run: npm run tauri build
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WEBKIT_DISABLE_COMPOSITING_MODE: 1
           WEBKIT_DISABLE_DMABUF_RENDERER: 1
-        with:
-          tagName: ${{ github.ref_name == 'main' && 'v0.1.0-draft' || github.ref_name }}
-          releaseName: 'OptiTux Draft Release'
-          releaseBody: |
-            ## OptiTux Automatic Build (Draft)
-
-            | Plataforma | Arquivo |
-            |---|---|
-            | Linux Flatpak | `.flatpak` |
-            | Linux Arch/CachyOS | `.pkg.tar.zst` |
-            | Linux Debian/Ubuntu | `.deb` |
-            | Linux Fedora/RHEL | `.rpm` |
-          releaseDraft: true
-          prerelease: false
 
       - name: Build Arch Package (.pkg.tar.zst)
         run: |
@@ -79,12 +60,12 @@ jobs:
           flatpak-builder --user --repo=repo --force-clean build-dir com.sll.optitux-gui.json
           flatpak build-bundle repo OptiTux.flatpak com.sll.optitux-gui
 
-      - name: Upload Extra Formats to Release
-        uses: softprops/action-gh-release@v1
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ github.ref_name == 'main' && 'v0.1.0-draft' || github.ref_name }}
-          files: |
-            OptiTux.flatpak
+          name: optitux-packages
+          path: |
+            src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/release/bundle/rpm/*.rpm
             OptiTux-x86_64.pkg.tar.zst
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            OptiTux.flatpak
