@@ -20,9 +20,9 @@ source=("local_deb::file://$(pwd)/../src-tauri/target/release/bundle/deb/${_pkgn
 sha256sums=('SKIP')
 
 package() {
-    # Extract the data.tar.xz from the local debian package
-    ar x local_deb
-    tar -xJf data.tar.xz -C "${pkgdir}"
+    # The makepkg already extracted the .deb, so the internal tarballs are in the current dir
+    # We use bsdtar to extract the data tarball regardless of its extension (.xz, .zst, .gz)
+    bsdtar -xf data.tar.* -C "${pkgdir}"
     
     # Ensure proper permissions for the binary
     if [ -f "${pkgdir}/usr/bin/optitux" ]; then

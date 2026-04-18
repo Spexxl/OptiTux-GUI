@@ -55,11 +55,10 @@ jobs:
 
       - name: Build Arch Package (.pkg.tar.zst)
         run: |
-          mkdir arch_build
+          mkdir -p arch_build
           cp PKGBUILD arch_build/
-          # Usar docker para rodar o makepkg no Arch Linux
           docker run --rm -v $(pwd):/workspace -w /workspace/arch_build archlinux:latest bash -c "
-            pacman -Sy --noconfirm base-devel binutils
+            pacman -Sy --noconfirm --noprogressbar base-devel binutils sudo
             useradd -m builduser && chown -R builduser:builduser /workspace/arch_build
             sudo -u builduser makepkg --noconfirm --nodeps
           "
