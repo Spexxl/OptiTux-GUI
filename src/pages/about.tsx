@@ -65,7 +65,9 @@ export function About() {
           <div className="flex items-center justify-center gap-1.5 text-muted-foreground/50">
             <Heart className="w-3.5 h-3.5" />
             <span className="text-xs font-medium uppercase tracking-widest">{t.about.supportTitle}</span>
-          </div>
+          </div>O que foi corrigido:
+
+
           <div className="flex flex-wrap items-center justify-center gap-3">
             <PatreonButton />
             <BuyMeACoffeeButton />
