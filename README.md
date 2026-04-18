@@ -33,6 +33,10 @@ It scans your Steam and Heroic library, detects your GPU, picks the right upscal
 - Download and manage OptiScaler releases from both the official repository and the OptiTuxDB
 - Uninstall cleanly, with automatic backup and restore of the original DLLs
 
+<p align="center">
+  <img src="screenshots/GameListInterface.png" alt="Game List Interface" width="100%">
+</p>
+
 ---
 
 ## Requirements
