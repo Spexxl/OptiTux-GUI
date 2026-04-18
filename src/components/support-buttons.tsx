@@ -1,7 +1,7 @@
 import { Coffee } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import links from "@/data/links.json";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { invoke } from "@tauri-apps/api/core";
 import { Button } from "@/components/ui/button";
 
 export function BuyMeACoffeeButton() {
@@ -11,7 +11,7 @@ export function BuyMeACoffeeButton() {
       variant="default"
       size="lg"
       className="rounded-xl font-bold gap-2 bg-[#FFDD00] hover:bg-[#E6C700] hover:scale-102 text-black border-0 shadow-lg transition-all duration-300"
-      onClick={() => openUrl(links.buymeacoffee)}
+      onClick={() => invoke("open_url_cmd", { url: links.buymeacoffee })}
     >
       <Coffee className="w-5 h-5 fill-current" />
       {t.community.supportBuyMeACoffee}
@@ -26,7 +26,7 @@ export function PatreonButton() {
       variant="default"
       size="lg"
       className="rounded-xl font-bold gap-2 bg-white hover:bg-gray-300 hover:scale-102 text-black border-0 shadow-lg transition-all duration-300"
-      onClick={() => openUrl(links.patreon)}
+      onClick={() => invoke("open_url_cmd", { url: links.patreon })}
     >
       <svg
         viewBox="0 0 512 512"

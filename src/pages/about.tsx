@@ -1,7 +1,7 @@
 import { Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BuyMeACoffeeButton, PatreonButton } from "@/components/support-buttons";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { invoke } from "@tauri-apps/api/core";
 
 const GitHub = ({ className }: { className?: string }) => (
   <svg
@@ -24,7 +24,7 @@ const GitHub = ({ className }: { className?: string }) => (
 export function About() {
   const { t } = useLanguage();
 
-  const open = (url: string) => openUrl(url).catch(console.error);
+  const open = (url: string) => invoke("open_url_cmd", { url }).catch(console.error);
 
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-auto bg-background/30 animate-in fade-in duration-500">
@@ -65,9 +65,7 @@ export function About() {
           <div className="flex items-center justify-center gap-1.5 text-muted-foreground/50">
             <Heart className="w-3.5 h-3.5" />
             <span className="text-xs font-medium uppercase tracking-widest">{t.about.supportTitle}</span>
-          </div>O que foi corrigido:
-
-
+          </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <PatreonButton />
             <BuyMeACoffeeButton />

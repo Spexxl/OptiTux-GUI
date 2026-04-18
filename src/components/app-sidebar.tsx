@@ -1,7 +1,7 @@
 import { Gamepad2, Box, LayoutGrid, Settings, Info } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import links from "@/data/links.json";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { invoke } from "@tauri-apps/api/core";
 import {
   Sidebar,
   SidebarContent,
@@ -98,7 +98,7 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
             <SidebarMenuButton
               size="lg"
               className="rounded-xl text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 transition-all duration-300"
-              onClick={() => openUrl(links.discord)}
+              onClick={() => invoke("open_url_cmd", { url: links.discord })}
             >
               <svg
                 viewBox="0 0 127.14 96.36"

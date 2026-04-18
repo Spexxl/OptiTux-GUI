@@ -231,7 +231,7 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
             className="h-7 w-7 bg-black/60 backdrop-blur-md text-white border-none hover:bg-black/80 transition-all duration-300 rounded-lg shadow-xl hover:scale-110 active:scale-95 z-10"
             onClick={(e) => {
               e.stopPropagation();
-              invoke("open_game_folder", { game });
+              invoke("open_game_folder", { game }).catch(console.error);
             }}
           >
             <FolderOpen className="w-4 h-4" />

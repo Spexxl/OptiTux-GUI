@@ -120,23 +120,60 @@ async fn remove_downloaded_version(folder_name: String) -> Result<(), String> {
 async fn open_versions_folder() -> Result<(), String> {
     let path = OptiScalerManager::versions_dir_pub()
         .ok_or_else(|| "Could not determine versions directory.".to_string())?;
-    tauri_plugin_opener::open_path(path, None::<&str>)
-        .map_err(|e| e.to_string())
+    let path_str = path.to_string_lossy().to_string();
+
+    #[cfg(target_os = "linux")]
+    {
+        std::process::Command::new("xdg-open")
+            .arg(&path_str)
+            .env_remove("LD_LIBRARY_PATH")
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        tauri_plugin_opener::open_path(path_str, None::<&str>).map_err(|e| e.to_string())
+    }
 }
 
 #[tauri::command]
 async fn open_game_folder(game: Game) -> Result<(), String> {
     let path_str = game.executable_path.unwrap_or(game.install_path);
     let path = std::path::Path::new(&path_str);
-    
-    let folder = if path.is_file() {
-        path.parent().unwrap_or(path)
-    } else {
-        path
-    };
+    let folder = if path.is_file() { path.parent().unwrap_or(path) } else { path };
+    let folder_path = folder.to_string_lossy().to_string();
 
-    tauri_plugin_opener::open_path(folder.to_string_lossy().to_string(), None::<&str>)
-        .map_err(|e| e.to_string())
+    #[cfg(target_os = "linux")]
+    {
+        std::process::Command::new("xdg-open")
+            .arg(&folder_path)
+            .env_remove("LD_LIBRARY_PATH")
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        tauri_plugin_opener::open_path(folder_path, None::<&str>).map_err(|e| e.to_string())
+    }
+}
+
+#[tauri::command]
+async fn open_url_cmd(url: String) -> Result<(), String> {
+    #[cfg(target_os = "linux")]
+    {
+        std::process::Command::new("xdg-open")
+            .arg(&url)
+            .env_remove("LD_LIBRARY_PATH")
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        tauri_plugin_opener::open_url(url, None::<&str>).map_err(|e| e.to_string())
+    }
 }
 
 #[derive(Clone, Serialize)]
@@ -280,6 +317,7 @@ pub fn run() {
             download_optiscaler_version,
             quick_install_optiscaler,
             custom_install_optiscaler,
+            open_url_cmd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
