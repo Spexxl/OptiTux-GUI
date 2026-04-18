@@ -113,5 +113,17 @@
     "supportNotice": "Developing and maintaining this infrastructure has server and development costs. If you would like to contribute, please consider supporting the project.",
     "supportPatreon": "Support on Patreon",
     "supportBuyMeACoffee": "Buy me a Coffee"
+  },
+  "about": {
+    "title": "About OptiTux",
+    "version": "Version",
+    "description": "OptiTux-GUI is a native Linux frontend for managing OptiScaler installations. It aims to simplify the process of enabling upscaling technologies in your game library with a user-friendly interface.",
+    "warning": "OptiTux-GUI is an independent tool and has no official connection with the OptiScaler project.",
+    "creditsTitle": "Credits",
+    "creditsDescription": "The heart of this tool is OptiScaler, an upscaling compatibility layer developed by the OptiScaler team. All credits for the upscaling logic and functionality go to them.",
+    "linksTitle": "Useful Links",
+    "visitGithub": "Visit GitHub Repository",
+    "supportTitle": "Support the Project",
+    "supportSubtitle": "Help maintaining the infrastructure and development"
   }
 }
