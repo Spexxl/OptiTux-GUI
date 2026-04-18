@@ -1,5 +1,6 @@
 <div align="center">
-
+    <img src="public/OptiTuxLogo.png" alt="OptiTux GUI Logo" width="180">
+    
 # OptiTux GUI
 
 **A native Linux frontend for managing OptiScaler installations across your game library.**
