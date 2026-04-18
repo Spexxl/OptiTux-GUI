@@ -25,6 +25,7 @@ tauri-plugin-dialog = "2.0.0"
 tauri-plugin-fs = "2.0.0"
 urlencoding = "2.1.3"
 futures = "0.3.32"
+fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs" }
 
 [build-dependencies]
 tauri-build = { version = "2.0.0", features = [] }

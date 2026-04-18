@@ -284,6 +284,8 @@ async fn custom_install_optiscaler(
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let _ = fix_path_env::fix();
+
     #[cfg(target_os = "linux")]
     {
         if std::env::var("WEBKIT_DISABLE_COMPOSITING_MODE").is_err() {
