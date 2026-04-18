@@ -20,7 +20,8 @@
       "buildsystem": "simple",
       "build-commands": [
         "install -D optitux /app/bin/optitux",
-        "cp -r usr/share/icons /app/share/icons",
+        "mkdir -p /app/share/icons",
+        "cp -r usr/share/icons/* /app/share/icons/",
         "install -D usr/share/applications/OptiTux.desktop /app/share/applications/com.sll.optitux-gui.desktop"
       ],
       "sources": [
