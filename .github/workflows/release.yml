@@ -71,8 +71,11 @@ jobs:
           ar x src-tauri/target/release/bundle/deb/OptiTux_*_amd64.deb
           bsdtar -xf data.tar.* -C flatpak_app/
           cp flatpak_app/usr/bin/* flatpak_app/optitux
+          
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          flatpak-builder --repo=repo --force-clean build-dir com.sll.optitux-gui.json
+          flatpak install --user -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+          
+          flatpak-builder --user --repo=repo --force-clean build-dir com.sll.optitux-gui.json
           flatpak build-bundle repo OptiTux.flatpak com.sll.optitux-gui
 
       - name: Upload Extra Formats to Release
