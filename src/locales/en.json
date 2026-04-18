@@ -7,7 +7,8 @@
     "optiscalerVersions": "Optiscaler Versions",
     "community": "Community",
     "settings": "Settings",
-    "about": "About"
+    "about": "About",
+    "discord": "Join Discord"
   },
   "gameCard": {
     "quickInstall": "Quick Install",
@@ -46,7 +47,8 @@
     "loadingVersions": "Loading versions...",
     "selectVersion": "Select a version",
     "downloaded": "Downloaded",
-    "notDownloaded": "Will download"
+    "notDownloaded": "Will download",
+    "mfgNotice": "Included in MFG build"
   },
   "coverEditDialog": {
     "title": "Edit Cover Art",
@@ -104,7 +106,14 @@
     "emptyStateDesc": "We couldn't detect any supported games. Try running a scan or adding them manually.",
     "scanning": "Scanning your library...",
     "optiscalerFilter": "OptiScaler Installed",
-    "gamesCount": "games"
+    "gamesCount": "games",
+    "platforms": {
+      "all": "All",
+      "steam": "Steam",
+      "heroic": "Heroic",
+      "lutris": "Lutris",
+      "manual": "Manual"
+    }
   },
   "community": {
     "title": "Community HUB",
@@ -125,5 +134,20 @@
     "visitGithub": "Visit GitHub Repository",
     "supportTitle": "Support the Project",
     "supportSubtitle": "Help maintaining the infrastructure and development"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageDescription": "Select the application display language.",
+    "english": "English",
+    "portuguese": "Portuguese (PT-BR)"
+  },
+  "manualFolders": {
+    "title": "Manage Manual Folders",
+    "subtitle": "Add directories to scan for games",
+    "addButton": "Add New Directory",
+    "emptyState": "No directories added yet.",
+    "close": "Close",
+    "pickerTitle": "Select Games Directory"
   }
 }

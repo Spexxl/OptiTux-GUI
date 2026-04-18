@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Pencil, ImagePlus, RotateCcw, Link, Upload } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "@/components/ui/button";
-import locales from "@/locales/en.json";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CoverEditDialogProps {
   isOpen: boolean;
@@ -15,6 +15,9 @@ interface CoverEditDialogProps {
 type TabId = "url" | "upload";
 
 export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChanged }: CoverEditDialogProps) {
+  const { t } = useLanguage();
+  const l = t.coverEditDialog;
+
   const [activeTab, setActiveTab] = useState<TabId>("url");
   const [urlInput, setUrlInput] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -91,7 +94,7 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
               <Pencil className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-foreground">{locales.coverEditDialog.title}</h2>
+              <h2 className="text-base font-bold text-foreground">{l.title}</h2>
               <p className="text-xs text-muted-foreground truncate max-w-[240px]">{gameName}</p>
             </div>
           </div>
@@ -110,7 +113,7 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
                 }`}
               >
                 {tab === "url" ? <Link className="w-3.5 h-3.5" /> : <Upload className="w-3.5 h-3.5" />}
-                {tab === "url" ? locales.coverEditDialog.urlTab : locales.coverEditDialog.uploadTab}
+                {tab === "url" ? l.urlTab : l.uploadTab}
               </button>
             ))}
           </div>
@@ -120,11 +123,11 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
           {activeTab === "url" ? (
             <div className="space-y-2">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                {locales.coverEditDialog.urlLabel}
+                {l.urlLabel}
               </label>
               <input
                 type="url"
-                placeholder={locales.coverEditDialog.urlPlaceholder}
+                placeholder={l.urlPlaceholder}
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/50 focus:bg-primary/5 transition-all duration-200"
@@ -143,7 +146,7 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
           ) : (
             <div className="space-y-3">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                {locales.coverEditDialog.uploadLabel}
+                {l.uploadLabel}
               </label>
               <input
                 ref={fileInputRef}
@@ -157,7 +160,7 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-primary/30 text-primary/80 hover:bg-primary/5 hover:text-primary hover:border-primary/60 transition-all duration-200 text-sm font-medium"
               >
                 <ImagePlus className="w-4 h-4" />
-                {selectedFile ? locales.coverEditDialog.uploadSelected : locales.coverEditDialog.uploadButton}
+                {selectedFile ? l.uploadSelected : l.uploadButton}
               </button>
               {selectedFile && (
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
@@ -183,7 +186,7 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-red-500/20 text-red-400/60 hover:text-red-400 hover:border-red-500/40 hover:bg-red-500/5 transition-all duration-200 text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <RotateCcw className={`w-3.5 h-3.5 ${isResetting ? "animate-spin" : ""}`} />
-            {isResetting ? locales.coverEditDialog.resetConfirm : locales.coverEditDialog.reset}
+            {isResetting ? l.resetConfirm : l.reset}
           </button>
         </div>
 
@@ -194,7 +197,7 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
             onClick={handleClose}
             className="rounded-xl border-white/10 hover:bg-white/5 text-muted-foreground hover:text-foreground"
           >
-            {locales.coverEditDialog.close}
+            {l.close}
           </Button>
           <Button
             size="sm"
@@ -203,7 +206,7 @@ export function CoverEditDialog({ isOpen, onClose, appId, gameName, onCoverChang
             className="rounded-xl gap-2"
           >
             <ImagePlus className="w-4 h-4" />
-            {locales.coverEditDialog.save}
+            {l.save}
           </Button>
         </div>
       </div>

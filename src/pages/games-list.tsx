@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GameCard, Game } from "@/components/game-card";
 import { ManualFoldersDialog } from "@/components/manual-folders-dialog";
-import locales from "@/locales/en.json";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
@@ -16,16 +16,18 @@ type PlatformFilter = "All" | "Steam" | "Heroic" | "Lutris" | "Custom";
 
 const PLATFORM_FILTERS: PlatformFilter[] = ["All", "Steam", "Heroic", "Lutris", "Custom"];
 
-const PLATFORM_LABELS: Record<PlatformFilter, string> = {
-  All: "All",
-  Steam: "Steam",
-  Heroic: "Heroic",
-  Lutris: "Lutris",
-  Custom: "Manual",
-};
-
 export function GamesList() {
-  const [gpuName, setGpuName] = useState(locales.toolbar.detectingGpu);
+  const { t } = useLanguage();
+  
+  const PLATFORM_LABELS: Record<PlatformFilter, string> = {
+    All: t.gamesList.platforms.all,
+    Steam: t.gamesList.platforms.steam,
+    Heroic: t.gamesList.platforms.heroic,
+    Lutris: t.gamesList.platforms.lutris,
+    Custom: t.gamesList.platforms.manual,
+  };
+
+  const [gpuName, setGpuName] = useState(t.toolbar.detectingGpu);
   const [games, setGames] = useState<Game[]>([]);
   const [isScanning, setIsScanning] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,7 +43,7 @@ export function GamesList() {
       }
     } catch (e) {
       console.error(e);
-      setGpuName(locales.toolbar.unknownGpu);
+      setGpuName(t.toolbar.unknownGpu);
     }
   };
 
@@ -101,7 +103,7 @@ export function GamesList() {
               ) : (
                 <RefreshCw className="w-3.5 h-3.5" />
               )}
-              {locales.toolbar.scanGames}
+              {t.toolbar.scanGames}
             </Button>
             <Button
               variant="secondary"
@@ -110,14 +112,14 @@ export function GamesList() {
               onClick={() => setIsFoldersDialogOpen(true)}
             >
               <Plus className="w-3.5 h-3.5" />
-              {locales.toolbar.addManual}
+              {t.toolbar.addManual}
             </Button>
           </div>
 
           <div className="flex-1 max-w-md relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder={locales.toolbar.search}
+              placeholder={t.toolbar.search}
               className="w-full pl-10 bg-muted/40 border-none rounded-xl text-sm focus-visible:ring-1"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -154,11 +156,11 @@ export function GamesList() {
               }`}
           >
             <Shield className="w-3 h-3" />
-            {locales.gamesList.optiscalerFilter}
+            {t.gamesList.optiscalerFilter}
           </button>
 
           <span className="ml-auto text-xs text-muted-foreground font-medium">
-            {displayedGames.length} / {games.length} {locales.gamesList.gamesCount}
+            {displayedGames.length} / {games.length} {t.gamesList.gamesCount}
           </span>
         </div>
       </div>
@@ -167,7 +169,7 @@ export function GamesList() {
         {isScanning && (
           <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm text-muted-foreground animate-in fade-in duration-300">
             <Loader2 className="w-10 h-10 mb-4 animate-spin text-primary/50" />
-            <p className="text-sm font-medium">{locales.gamesList.scanning}</p>
+            <p className="text-sm font-medium">{t.gamesList.scanning}</p>
           </div>
         )}
 
@@ -176,10 +178,10 @@ export function GamesList() {
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
               <Ghost className="w-16 h-16 mb-4 opacity-50" />
               <h3 className="text-xl font-bold text-foreground mb-1">
-                {locales.gamesList.emptyStateTitle}
+                {t.gamesList.emptyStateTitle}
               </h3>
               <p className="text-sm max-w-sm text-center">
-                {locales.gamesList.emptyStateDesc}
+                {t.gamesList.emptyStateDesc}
               </p>
             </div>
           ) : (

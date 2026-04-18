@@ -1,8 +1,7 @@
-import { MessageSquare, Heart } from "lucide-react";
-import locales from "@/locales/en.json";
+import { Heart } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { BuyMeACoffeeButton, PatreonButton } from "@/components/support-buttons";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import links from "@/data/links.json";
 
 const GitHub = ({ className }: { className?: string }) => (
   <svg
@@ -23,13 +22,13 @@ const GitHub = ({ className }: { className?: string }) => (
 );
 
 export function About() {
-  const t = locales.about;
+  const { t } = useLanguage();
 
   const open = (url: string) => openUrl(url).catch(console.error);
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-auto bg-background/30">
-      <div className="relative z-10 flex flex-col items-center text-center gap-10 px-6 py-16 max-w-lg w-full animate-in fade-in zoom-in-95 duration-700 slide-in-from-bottom-4">
+    <div className="relative w-full h-full flex items-center justify-center overflow-auto bg-background/30 animate-in fade-in duration-500">
+      <div className="relative z-10 flex flex-col items-center text-center gap-10 px-6 py-16 max-w-lg w-full">
 
         <div className="relative group">
           <div className="absolute -inset-4 bg-primary/20 rounded-full blur-2xl opacity-40 transition-all duration-1000" />
@@ -48,7 +47,7 @@ export function About() {
             v{APP_VERSION}
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto pt-1">
-            {t.description}
+            {t.about.description}
           </p>
         </div>
 
@@ -58,14 +57,14 @@ export function About() {
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/8 hover:border-white/15 text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-200"
           >
             <GitHub className="w-4 h-4" />
-            {t.visitGithub}
+            {t.about.visitGithub}
           </button>
         </div>
 
         <div className="w-full pt-2 border-t border-white/5 space-y-4">
           <div className="flex items-center justify-center gap-1.5 text-muted-foreground/50">
             <Heart className="w-3.5 h-3.5" />
-            <span className="text-xs font-medium uppercase tracking-widest">{t.supportTitle}</span>
+            <span className="text-xs font-medium uppercase tracking-widest">{t.about.supportTitle}</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <PatreonButton />

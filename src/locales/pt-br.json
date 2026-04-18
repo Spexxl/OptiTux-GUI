@@ -1,0 +1,153 @@
+{
+  "app": {
+    "title": "OptiTux"
+  },
+  "sidebar": {
+    "gamesList": "Lista de Jogos",
+    "optiscalerVersions": "Versões do OptiScaler",
+    "community": "Comunidade",
+    "settings": "Configurações",
+    "about": "Sobre",
+    "discord": "Entrar no Discord"
+  },
+  "gameCard": {
+    "quickInstall": "Instalação Rápida",
+    "install": "Instalar",
+    "uninstall": "Desinstalar",
+    "uninstalling": "Desinstalando...",
+    "uninstallDone": "Removido!",
+    "uninstallError": "Falhou",
+    "installedStatus": "Instalado",
+    "quickInstalling": "Instalando...",
+    "quickInstallDownloading": "Baixando...",
+    "quickInstallDownloadingInt8": "Baixando INT8...",
+    "quickInstallExtracting": "Extraindo...",
+    "quickInstallDone": "Instalado!",
+    "quickInstallError": "Falhou"
+  },
+  "installDialog": {
+    "title": "Instalar OptiScaler",
+    "version": "Versão",
+    "repository": "Repositório",
+    "upscaler": "Upscaler",
+    "upscalerFsr": "FSR (AMD)",
+    "upscalerDlss": "DLSS (NVIDIA)",
+    "upscalerXess": "XeSS (Intel)",
+    "installInt8": "Instalar addon FSR4 INT8",
+    "enableFramegen": "Habilitar Frame Generation",
+    "install": "Instalar",
+    "installing": "Instalando...",
+    "downloading": "Baixando versão...",
+    "downloadingInt8": "Baixando INT8...",
+    "configuring": "Configurando...",
+    "done": "Instalado!",
+    "error": "Falha na Instalação",
+    "close": "Cancelar",
+    "noVersions": "Nenhuma versão disponível",
+    "loadingVersions": "Carregando versões...",
+    "selectVersion": "Selecione uma versão",
+    "downloaded": "Baixada",
+    "notDownloaded": "Será baixada",
+    "mfgNotice": "Incluso na build MFG"
+  },
+  "coverEditDialog": {
+    "title": "Editar Capa",
+    "subtitle": "Definir uma imagem de capa personalizada para este jogo",
+    "urlTab": "URL",
+    "uploadTab": "Upload",
+    "urlLabel": "URL da Imagem",
+    "urlPlaceholder": "https://exemplo.com/capa.jpg",
+    "uploadLabel": "Imagem Local",
+    "uploadButton": "Escolher Imagem...",
+    "uploadSelected": "Imagem selecionada",
+    "save": "Salvar Capa",
+    "reset": "Resetar para Padrão",
+    "resetConfirm": "Buscando capa original...",
+    "close": "Fechar"
+  },
+  "toolbar": {
+    "scanGames": "Escanear Jogos",
+    "addManual": "Adicionar Manual",
+    "search": "Buscar jogos...",
+    "gpu": "GPU",
+    "detectingGpu": "Detectando GPU...",
+    "unknownGpu": "GPU Desconhecida"
+  },
+  "optiscalerVersions": {
+    "title": "Versões do OptiScaler",
+    "subtitle": "Baixar e gerenciar releases do OptiScaler.",
+    "sourceStable": "Estável",
+    "sourceDb": "OptiTuxDB",
+    "selectVersion": "Selecione uma versão",
+    "noVersionsAvailable": "Nenhuma versão disponível",
+    "download": "Baixar",
+    "downloaded": "Baixada",
+    "delete": "Excluir",
+    "openFolder": "Abrir Pasta",
+    "downloading": "Baixando...",
+    "downloadingInt8": "Baixando addon INT8...",
+    "done": "Concluído!",
+    "error": "Erro",
+    "loadingVersions": "Carregando versões disponíveis...",
+    "loadError": "Falha ao carregar releases. Verifique sua conexão.",
+    "localVersions": "Versões Baixadas",
+    "noLocalVersions": "Nenhuma versão baixada ainda.",
+    "int8Included": "Addon INT8 será baixado automaticamente",
+    "prerelease": "Database",
+    "stable": "Estável",
+    "retry": "Tentar Novamente"
+  },
+  "actions": {
+    "installed": "Instalado",
+    "notInstalled": "Não Instalado"
+  },
+  "gamesList": {
+    "emptyStateTitle": "Nenhum Jogo Encontrado",
+    "emptyStateDesc": "Não conseguimos detectar nenhum jogo suportado. Tente rodar um scan ou adicioná-los manualmente.",
+    "scanning": "Escaneando sua biblioteca...",
+    "optiscalerFilter": "OptiScaler Instalado",
+    "gamesCount": "jogos",
+    "platforms": {
+      "all": "Todos",
+      "steam": "Steam",
+      "heroic": "Heroic",
+      "lutris": "Lutris",
+      "manual": "Manual"
+    }
+  },
+  "community": {
+    "title": "HUB da Comunidade",
+    "subtitle": "Recurso Futuro",
+    "description": "Este recurso futuro permitirá que os usuários publiquem, baixem e avaliem versões customizadas ou derivadas do OptiScaler, bem como presets e correções específicas para jogos e GPUs disponibilizados pela comunidade.",
+    "supportNotice": "Desenvolver e manter esta infraestrutura tem custos de servidor e desenvolvimento. Se você quiser contribuir, por favor considere apoiar o projeto.",
+    "supportPatreon": "Apoiar no Patreon",
+    "supportBuyMeACoffee": "Buy me a Coffee"
+  },
+  "about": {
+    "title": "Sobre o OptiTux",
+    "version": "Versão",
+    "description": "O OptiTux-GUI é um frontend nativo de Linux para gerenciar instalações do OptiScaler. Ele visa simplificar o processo de habilitar tecnologias de upscaling em sua biblioteca de jogos com uma interface amigável.",
+    "warning": "O OptiTux-GUI é uma ferramenta independente e não possui conexão oficial com o projeto OptiScaler.",
+    "creditsTitle": "Créditos",
+    "creditsDescription": "O coração desta ferramenta é o OptiScaler, uma camada de compatibilidade de upscaling desenvolvida pela equipe do OptiScaler. Todos os créditos pela lógica e funcionalidade de upscaling vão para eles.",
+    "linksTitle": "Links Úteis",
+    "visitGithub": "Visitar Repositório no GitHub",
+    "supportTitle": "Apoiar o Projeto",
+    "supportSubtitle": "Ajude a manter a infraestrutura e o desenvolvimento"
+  },
+  "settings": {
+    "title": "Configurações",
+    "language": "Idioma",
+    "languageDescription": "Selecione o idioma de exibição do aplicativo.",
+    "english": "Inglês",
+    "portuguese": "Português (PT-BR)"
+  },
+  "manualFolders": {
+    "title": "Gerenciar Pastas Manuais",
+    "subtitle": "Adicione diretórios para buscar jogos",
+    "addButton": "Adicionar Novo Diretório",
+    "emptyState": "Nenhum diretório adicionado ainda.",
+    "close": "Fechar",
+    "pickerTitle": "Selecionar Diretório de Jogos"
+  }
+}

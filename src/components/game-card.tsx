@@ -6,7 +6,7 @@ import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { CoverEditDialog } from "@/components/cover-edit-dialog";
 import { InstallDialog } from "@/components/install-dialog";
-import locales from "@/locales/en.json";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface Game {
   name: string;
@@ -29,7 +29,12 @@ type UninstallState = "idle" | "loading" | "done" | "error";
 type QuickInstallPhase = "idle" | "fetching" | "downloading" | "downloading_int8" | "installing" | "done" | "error";
 
 export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCardProps) {
-  const platformDisplay = game.platform === "Custom" ? "Manual" : game.platform;
+  const { t } = useLanguage();
+  
+  const platformDisplay = game.platform === "Custom" 
+    ? t.gamesList.platforms.manual 
+    : game.platform;
+
   const [isInstalled, setIsInstalled] = useState(game.is_optiscaler_installed);
   const [uninstallState, setUninstallState] = useState<UninstallState>("idle");
   const [coverUrl, setCoverUrl] = useState(game.cover_url);
@@ -79,7 +84,7 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
   }, [game, quickInstallPhase, onInstallSuccess]);
 
   const getQuickInstallLabel = () => {
-    const l = locales.gameCard;
+    const l = t.gameCard;
     switch (quickInstallPhase) {
       case "fetching": return l.quickInstallDownloading;
       case "downloading": return l.quickInstallDownloading;
@@ -137,7 +142,7 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
           className="w-full rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-all duration-300 opacity-90"
         >
           <Loader2 className="w-4 h-4 animate-spin" />
-          {locales.gameCard.uninstalling}
+          {t.gameCard.uninstalling}
         </Button>
       );
     }
@@ -151,7 +156,7 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
           className="w-full rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-all duration-300 bg-green-500/20 text-green-400 border-green-500/30"
         >
           <CheckCircle2 className="w-4 h-4" />
-          {locales.gameCard.uninstallDone}
+          {t.gameCard.uninstallDone}
         </Button>
       );
     }
@@ -165,7 +170,7 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
           className="w-full rounded-lg font-semibold gap-2 translate-y-2 group-hover:translate-y-0 transition-all duration-300 opacity-70"
         >
           <Trash2 className="w-4 h-4" />
-          {locales.gameCard.uninstallError}
+          {t.gameCard.uninstallError}
         </Button>
       );
     }
@@ -178,7 +183,7 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
         onClick={handleUninstall}
       >
         <Trash2 className="w-4 h-4" />
-        {locales.gameCard.uninstall}
+        {t.gameCard.uninstall}
       </Button>
     );
   };
@@ -214,7 +219,7 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
           {isInstalled && (
             <Badge className="bg-green-500/80 backdrop-blur-md text-white border-none text-[10px] font-bold px-2 py-0.5 gap-1 font-sans">
               <Check className="w-3 h-3" />
-              {locales.gameCard.installedStatus}
+              {t.gameCard.installedStatus}
             </Badge>
           )}
         </div>
@@ -265,7 +270,7 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
                 onClick={() => setIsInstallDialogOpen(true)}
               >
                 <Download className="w-4 h-4" />
-                {locales.gameCard.install}
+                {t.gameCard.install}
               </Button>
             </>
           ) : (

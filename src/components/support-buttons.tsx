@@ -1,10 +1,11 @@
 import { Coffee } from "lucide-react";
-import locales from "@/locales/en.json";
+import { useLanguage } from "@/contexts/LanguageContext";
 import links from "@/data/links.json";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Button } from "@/components/ui/button";
 
 export function BuyMeACoffeeButton() {
+  const { t } = useLanguage();
   return (
     <Button
       variant="default"
@@ -13,12 +14,13 @@ export function BuyMeACoffeeButton() {
       onClick={() => openUrl(links.buymeacoffee)}
     >
       <Coffee className="w-5 h-5 fill-current" />
-      {locales.community.supportBuyMeACoffee}
+      {t.community.supportBuyMeACoffee}
     </Button>
   );
 }
 
 export function PatreonButton() {
+  const { t } = useLanguage();
   return (
     <Button
       variant="default"
@@ -44,7 +46,7 @@ export function PatreonButton() {
           </g>
         </g>
       </svg>
-      {locales.community.supportPatreon}
+      {t.community.supportPatreon}
     </Button>
   );
 }

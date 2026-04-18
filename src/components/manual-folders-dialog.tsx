@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderPlus, Trash2, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ManualFoldersDialogProps {
   isOpen: boolean;
@@ -11,6 +12,9 @@ interface ManualFoldersDialogProps {
 }
 
 export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: ManualFoldersDialogProps) {
+  const { t } = useLanguage();
+  const translations = t.manualFolders;
+
   const [folders, setFolders] = useState<string[]>([]);
   const [wasChanged, setWasChanged] = useState(false);
 
@@ -38,7 +42,7 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
       const selected = await open({
         directory: true,
         multiple: false,
-        title: "Select Games Directory",
+        title: translations.pickerTitle,
       });
 
       if (selected && typeof selected === "string") {
@@ -73,8 +77,8 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
               <FolderOpen className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-foreground">Manage Manual Folders</h2>
-              <p className="text-xs text-muted-foreground">Add directories to scan for games</p>
+              <h2 className="text-base font-bold text-foreground">{translations.title}</h2>
+              <p className="text-xs text-muted-foreground">{translations.subtitle}</p>
             </div>
           </div>
         </div>
@@ -85,14 +89,14 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-primary/30 text-primary/80 hover:bg-primary/5 hover:text-primary hover:border-primary/60 transition-all duration-200 text-sm font-medium"
           >
             <FolderPlus className="w-4 h-4" />
-            Add New Directory
+            {translations.addButton}
           </button>
 
           <div className="max-h-[280px] overflow-y-auto space-y-2 no-scrollbar">
             {folders.length === 0 ? (
               <div className="text-center py-10 text-muted-foreground/40">
                 <FolderOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                <p className="text-xs">No directories added yet.</p>
+                <p className="text-xs">{translations.emptyState}</p>
               </div>
             ) : (
               folders.map((path) => (
@@ -125,7 +129,7 @@ export function ManualFoldersDialog({ isOpen, onClose, onFoldersChanged }: Manua
             onClick={handleClose}
             className="rounded-xl border-white/10 hover:bg-white/5 text-muted-foreground hover:text-foreground"
           >
-            Close
+            {translations.close}
           </Button>
         </div>
       </div>

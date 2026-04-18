@@ -3,7 +3,7 @@ import { Download, Loader2, CheckCircle2, AlertCircle, RefreshCw, Database, Spar
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { Button } from "@/components/ui/button";
-import locales from "@/locales/en.json";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Asset {
   name: string;
@@ -45,8 +45,6 @@ interface InstallDialogProps {
 type SourceTab = "stable" | "db";
 type InstallState = "idle" | "downloading" | "installing" | "downloading_int8" | "configuring" | "done" | "error";
 
-const t = locales.installDialog;
-
 function getDefaultUpscaler(arch: string): string {
   switch (arch) {
     case "RDNA4":
@@ -67,6 +65,9 @@ function shouldDefaultInt8(arch: string): boolean {
 }
 
 export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: InstallDialogProps) {
+  const { t } = useLanguage();
+  const translations = t.installDialog;
+
   const [sourceTab, setSourceTab] = useState<SourceTab>("stable");
   const [allReleases, setAllReleases] = useState<Release[]>([]);
   const [downloadedVersions, setDownloadedVersions] = useState<string[]>([]);
@@ -211,14 +212,15 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
   };
 
   const getInstallButtonLabel = () => {
+    const l = translations;
     switch (installState) {
-      case "downloading": return t.downloading;
-      case "installing": return t.installing;
-      case "downloading_int8": return t.downloadingInt8;
-      case "configuring": return t.configuring;
-      case "done": return t.done;
-      case "error": return t.error;
-      default: return t.install;
+      case "downloading": return l.downloading;
+      case "installing": return l.installing;
+      case "downloading_int8": return l.downloadingInt8;
+      case "configuring": return l.configuring;
+      case "done": return l.done;
+      case "error": return l.error;
+      default: return l.install;
     }
   };
 
@@ -247,7 +249,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
               <Download className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-foreground">{t.title}</h2>
+              <h2 className="text-base font-bold text-foreground">{translations.title}</h2>
               <p className="text-xs text-muted-foreground truncate max-w-[240px]">{game.name}</p>
             </div>
           </div>
@@ -256,7 +258,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
         <div className="px-6 py-5 space-y-5">
           <div className="space-y-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {t.repository}
+              {translations.repository}
             </label>
             <div className="flex gap-1 p-1 rounded-xl bg-white/4 border border-white/5">
               <button
@@ -268,7 +270,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                   }`}
               >
                 <Sparkles className="w-3 h-3" />
-                Stable
+                {t.optiscalerVersions.stable}
               </button>
               <button
                 disabled={isWorking}
@@ -279,26 +281,26 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                   }`}
               >
                 <Database className="w-3 h-3" />
-                OptiTuxDB
+                {t.optiscalerVersions.sourceDb}
               </button>
             </div>
           </div>
 
           <div className="space-y-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {t.version}
+              {translations.version}
             </label>
             {loadingReleases ? (
               <div className="flex items-center gap-2 text-muted-foreground text-sm py-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                {t.loadingVersions}
+                {translations.loadingVersions}
               </div>
             ) : loadError ? (
               <div className="flex items-center gap-2">
-                <span className="text-destructive text-xs">{locales.optiscalerVersions.loadError}</span>
+                <span className="text-destructive text-xs">{t.optiscalerVersions.loadError}</span>
                 <button onClick={fetchReleases} className="text-xs text-primary hover:underline">
                   <RefreshCw className="w-3 h-3 inline mr-1" />
-                  {locales.optiscalerVersions.retry}
+                  {t.optiscalerVersions.retry}
                 </button>
               </div>
             ) : (
@@ -310,7 +312,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                   className="w-full bg-white/4 border border-white/10 rounded-xl px-3 py-2.5 text-sm font-medium appearance-none cursor-pointer focus:outline-none focus:border-primary/50 focus:bg-primary/5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {filteredReleases.length === 0 ? (
-                    <option value="">{t.noVersions}</option>
+                    <option value="">{translations.noVersions}</option>
                   ) : (
                     filteredReleases.map((r) => (
                       <option key={r.tag_name} value={r.tag_name}>
@@ -322,7 +324,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                 </select>
                 {selectedVersion && (
                   <span className={`text-[10px] font-medium ${isVersionDownloaded(selectedVersion) ? "text-green-400" : "text-amber-400"}`}>
-                    {isVersionDownloaded(selectedVersion) ? `✓ ${t.downloaded}` : `↓ ${t.notDownloaded}`}
+                    {isVersionDownloaded(selectedVersion) ? `✓ ${translations.downloaded}` : `↓ ${translations.notDownloaded}`}
                   </span>
                 )}
               </div>
@@ -331,7 +333,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
 
           <div className="space-y-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {t.upscaler}
+              {translations.upscaler}
             </label>
             <select
               disabled={isWorking}
@@ -339,9 +341,9 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
               onChange={(e) => setUpscaler(e.target.value)}
               className="w-full bg-white/4 border border-white/10 rounded-xl px-3 py-2.5 text-sm font-medium appearance-none cursor-pointer focus:outline-none focus:border-primary/50 focus:bg-primary/5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <option value="fsr">{t.upscalerFsr}</option>
-              <option value="dlss">{t.upscalerDlss}</option>
-              <option value="xess">{t.upscalerXess}</option>
+              <option value="fsr">{translations.upscalerFsr}</option>
+              <option value="dlss">{translations.upscalerDlss}</option>
+              <option value="xess">{translations.upscalerXess}</option>
             </select>
           </div>
 
@@ -369,7 +371,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                   </svg>
                 )}
               </div>
-              <span className="text-sm font-medium text-foreground/80">{t.installInt8}</span>
+              <span className="text-sm font-medium text-foreground/80">{translations.installInt8}</span>
             </label>
 
             <label
@@ -396,9 +398,9 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                 )}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground/80">{t.enableFramegen}</span>
+                <span className="text-sm font-medium text-foreground/80">{translations.enableFramegen}</span>
                 {isMfgVersion && (
-                  <span className="text-[10px] text-primary/70 font-medium">Included in MFG build</span>
+                  <span className="text-[10px] text-primary/70 font-medium">{translations.mfgNotice}</span>
                 )}
               </div>
             </label>
@@ -413,7 +415,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
             disabled={isWorking}
             className="rounded-xl border-white/10 hover:bg-white/5 text-muted-foreground hover:text-foreground"
           >
-            {t.close}
+            {translations.close}
           </Button>
           <Button
             size="sm"

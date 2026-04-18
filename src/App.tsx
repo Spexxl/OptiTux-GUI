@@ -6,25 +6,28 @@ import { Community } from "@/pages/community";
 import { Settings } from "@/pages/settings";
 import { About } from "@/pages/about";
 import { useState } from "react";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 function App() {
   const [activeTab, setActiveTab] = useState("gamesList");
 
   return (
-    <SidebarProvider>
-      <div className="flex h-screen bg-sidebar dark:bg-[#121212] w-full p-2 gap-0 overflow-hidden">
-        <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 bg-background dark:bg-[#0A0A0A] rounded-xl border border-border/50 shadow-inner overflow-hidden flex flex-col relative transition-all duration-300">
-          <div className="flex flex-1 flex-col overflow-hidden">
-            {activeTab === "gamesList" && <GamesList />}
-            {activeTab === "optiscalerVersions" && <OptiscalerVersions />}
-            {activeTab === "community" && <Community />}
-            {activeTab === "settings" && <Settings />}
-            {activeTab === "about" && <About />}
-          </div>
-        </main>
-      </div>
-    </SidebarProvider>
+    <LanguageProvider>
+      <SidebarProvider>
+        <div className="flex h-screen bg-sidebar dark:bg-[#121212] w-full p-2 gap-0 overflow-hidden">
+          <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+          <main className="flex-1 bg-background dark:bg-[#0A0A0A] rounded-xl border border-border/50 shadow-inner overflow-hidden flex flex-col relative transition-all duration-300">
+            <div className="flex flex-1 flex-col overflow-hidden">
+              {activeTab === "gamesList" && <GamesList />}
+              {activeTab === "optiscalerVersions" && <OptiscalerVersions />}
+              {activeTab === "community" && <Community />}
+              {activeTab === "settings" && <Settings />}
+              {activeTab === "about" && <About />}
+            </div>
+          </main>
+        </div>
+      </SidebarProvider>
+    </LanguageProvider>
   );
 }
 

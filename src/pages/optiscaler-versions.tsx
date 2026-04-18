@@ -10,14 +10,13 @@ import {
   AlertCircle,
   PackageOpen,
   RefreshCw,
-  Sparkles,
   Database,
   Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import locales from "@/locales/en.json";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Asset {
   name: string;
@@ -42,8 +41,6 @@ interface DownloadProgress {
 type SourceTab = "stable" | "db";
 type DownloadState = "idle" | "downloading" | "done" | "error";
 
-const l = locales.optiscalerVersions;
-
 function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";
   const k = 1024;
@@ -52,13 +49,16 @@ function formatBytes(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
-function getPhaseLabel(phase: string): string {
-  if (phase === "downloading_int8") return l.downloadingInt8;
-  if (phase === "done") return l.done;
-  return l.downloading;
-}
-
 export function OptiscalerVersions() {
+  const { t } = useLanguage();
+  const l = t.optiscalerVersions;
+
+  const getPhaseLabel = (phase: string): string => {
+    if (phase === "downloading_int8") return l.downloadingInt8;
+    if (phase === "done") return l.done;
+    return l.downloading;
+  };
+
   const [sourceTab, setSourceTab] = useState<SourceTab>("stable");
   const [allReleases, setAllReleases] = useState<Release[]>([]);
   const [downloadedVersions, setDownloadedVersions] = useState<string[]>([]);
@@ -162,7 +162,7 @@ export function OptiscalerVersions() {
   };
 
   const handleOpenFolder = () => {
-    invoke("open_versions_folder").catch(() => {});
+    invoke("open_versions_folder").catch(() => { });
   };
 
   const progressPercent = downloadProgress?.percent ?? 0;
@@ -193,11 +193,10 @@ export function OptiscalerVersions() {
               <button
                 disabled={downloadState === "downloading"}
                 onClick={() => setSourceTab("stable")}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                  sourceTab === "stable"
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${sourceTab === "stable"
                     ? "bg-background shadow-sm text-foreground"
                     : "text-muted-foreground hover:text-foreground disabled:opacity-50"
-                }`}
+                  }`}
               >
                 <RefreshCw className={`w-3 h-3 ${downloadState === "downloading" ? "animate-spin" : ""}`} />
                 {l.sourceStable}
@@ -205,11 +204,10 @@ export function OptiscalerVersions() {
               <button
                 disabled={downloadState === "downloading"}
                 onClick={() => setSourceTab("db")}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                  sourceTab === "db"
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${sourceTab === "db"
                     ? "bg-background shadow-sm text-foreground"
                     : "text-muted-foreground hover:text-foreground disabled:opacity-50"
-                }`}
+                  }`}
               >
                 <Database className="w-3 h-3" />
                 {l.sourceDb}
@@ -295,8 +293,8 @@ export function OptiscalerVersions() {
                       )}
                       {downloadState === "idle" ? l.download :
                         downloadState === "done" ? l.done :
-                        downloadState === "error" ? l.error :
-                        getPhaseLabel(progressPhase)}
+                          downloadState === "error" ? l.error :
+                            getPhaseLabel(progressPhase)}
                     </Button>
                   )}
                 </div>
