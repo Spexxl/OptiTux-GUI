@@ -9,41 +9,44 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum InjectionMethod {
-    Dxgi,
-    Winmm,
-    Version,
-    Dbghelp,
-    D3d12,
-    Wininet,
-    Winhttp,}
+macro_rules! define_injection_methods {
+    ($($variant:ident => $filename:expr, $slug:expr);* $(;)?) => {
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+        pub enum InjectionMethod {
+            $($variant),*
+        }
 
-impl InjectionMethod {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Dxgi => "dxgi.dll",
-            Self::Winmm => "winmm.dll",
-            Self::Version => "version.dll",
-            Self::Dbghelp => "dbghelp.dll",
-            Self::D3d12 => "d3d12.dll",
-            Self::Wininet => "wininet.dll",
-            Self::Winhttp => "winhttp.dll",
+        impl InjectionMethod {
+            pub fn as_str(&self) -> &'static str {
+                match self {
+                    $(Self::$variant => $filename),*
+                }
+            }
+
+            pub fn from_str(s: &str) -> Self {
+                match s {
+                    $($slug => Self::$variant,)*
+                    _ => Self::Dxgi,
+                }
+            }
+
+            pub fn all() -> Vec<Self> {
+                vec![$(Self::$variant),*]
+            }
         }
     }
-
-    pub fn all() -> Vec<InjectionMethod> {
-        vec![
-            Self::Dxgi,
-            Self::Winmm,
-            Self::Version,
-            Self::Dbghelp,
-            Self::D3d12,
-            Self::Wininet,
-            Self::Winhttp,
-        ]
-    }
 }
+
+define_injection_methods! {
+    Dxgi     => "dxgi.dll",     "dxgi";
+    Winmm    => "winmm.dll",    "winmm";
+    Version  => "version.dll",  "version";
+    Dbghelp  => "dbghelp.dll",  "dbghelp";
+    D3d12    => "d3d12.dll",    "d3d12";
+    Wininet  => "wininet.dll",  "wininet";
+    Winhttp  => "winhttp.dll",  "winhttp";
+}
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct InstallManifest {
@@ -300,14 +303,13 @@ impl Installer {
         install_int8: bool,
         enable_framegen: bool,
         is_mfg: bool,
+        injection: InjectionMethod,
         on_progress: F,
     ) -> Result<()>
     where
         F: Fn(&str, f64),
     {
         on_progress("starting", 0.0);
-
-        let injection = InjectionMethod::Dxgi;
 
         let version_path = OptiScalerManager::get_version_path(version_folder)
             .ok_or_else(|| anyhow!("Could not resolve version path for '{}'.", version_folder))?;

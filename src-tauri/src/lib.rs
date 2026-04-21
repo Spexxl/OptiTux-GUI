@@ -5,7 +5,7 @@ use crate::core::game_scanner::ScannerManager;
 use crate::core::gpu_detector::{GpuDetector, GpuInfo};
 use crate::core::models::Game;
 use crate::core::optiscaler::github::{GitHubClient, Release};
-use crate::core::optiscaler::installer::Installer;
+use crate::core::optiscaler::installer::{Installer, InjectionMethod};
 use crate::core::optiscaler::manager::OptiScalerManager;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
@@ -271,8 +271,10 @@ async fn custom_install_optiscaler(
     install_int8: bool,
     enable_framegen: bool,
     is_mfg_version: bool,
+    injection_method: String,
 ) -> Result<(), String> {
-    Installer::custom_install(&game, &version_folder, &upscaler, install_int8, enable_framegen, is_mfg_version, |phase, percent| {
+    let injection = InjectionMethod::from_str(&injection_method);
+    Installer::custom_install(&game, &version_folder, &upscaler, install_int8, enable_framegen, is_mfg_version, injection, |phase, percent| {
         app.emit("custom-install-progress", QuickInstallProgress {
             phase: phase.to_string(),
             percent,

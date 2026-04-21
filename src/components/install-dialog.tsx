@@ -77,6 +77,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
   const [upscaler, setUpscaler] = useState("fsr");
   const [installInt8, setInstallInt8] = useState(false);
   const [enableFramegen, setEnableFramegen] = useState(false);
+  const [injectionMethod, setInjectionMethod] = useState("dxgi");
   const [installState, setInstallState] = useState<InstallState>("idle");
 
   const filteredReleases = allReleases.filter((r) => r.source === sourceTab);
@@ -130,6 +131,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
       loadGpuDefaults();
       setInstallState("idle");
       setEnableFramegen(false);
+      setInjectionMethod("dxgi");
     }
   }, [isOpen, fetchReleases, fetchDownloaded, loadGpuDefaults]);
 
@@ -190,6 +192,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
         installInt8,
         enableFramegen: isMfgVersion ? false : enableFramegen,
         isMfgVersion,
+        injectionMethod,
       });
       setInstallState("done");
       setTimeout(() => {
@@ -203,7 +206,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
     } finally {
       unlisten();
     }
-  }, [installState, selectedVersion, selectedAsset, game, upscaler, installInt8, enableFramegen, onInstallSuccess]);
+  }, [installState, selectedVersion, selectedAsset, game, upscaler, installInt8, enableFramegen, injectionMethod, onInstallSuccess]);
 
   const handleClose = () => {
     if (installState !== "idle" && installState !== "done" && installState !== "error") return;
@@ -344,6 +347,26 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
               <option value="fsr">{translations.upscalerFsr}</option>
               <option value="dlss">{translations.upscalerDlss}</option>
               <option value="xess">{translations.upscalerXess}</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {translations.injectionMethod}
+            </label>
+            <select
+              disabled={isWorking}
+              value={injectionMethod}
+              onChange={(e) => setInjectionMethod(e.target.value)}
+              className="w-full bg-white/4 border border-white/10 rounded-xl px-3 py-2.5 text-sm font-medium appearance-none cursor-pointer focus:outline-none focus:border-primary/50 focus:bg-primary/5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="dxgi">dxgi.dll</option>
+              <option value="winmm">winmm.dll</option>
+              <option value="version">version.dll</option>
+              <option value="dbghelp">dbghelp.dll</option>
+              <option value="d3d12">d3d12.dll</option>
+              <option value="wininet">wininet.dll</option>
+              <option value="winhttp">winhttp.dll</option>
             </select>
           </div>
 
