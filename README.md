@@ -118,14 +118,14 @@ Flatpak is a universal format that runs in a sandbox, ensuring the program works
       flatpak run optitux-gui 
       ```
 
-### 🔹 `.tar.gz` (Portable / Generic)
+### 🔹 `.tar.zst ` (Portable / Generic)
 This is a compressed file containing the program's binary. It can be run on any Linux distribution as long as the system has the base libraries installed.
 
 *   **Requirements:** Make sure you have the runtime dependencies listed in the [Requirements](#requirements) section (such as `webkit2gtk`, `p7zip`, and `pciutils`).
 *   **How to install:**
     1. Download and extract the file:
        ```bash
-       tar -xzf optitux-gui.tar.gz
+       tar -xzf optitux-gui.pkg.tar.zst 
        ```
     2. Enter the extracted folder:
        ```bash
