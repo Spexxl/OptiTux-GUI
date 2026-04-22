@@ -38,6 +38,7 @@ jobs:
         run: |
           mkdir -p arch_build
           cp PKGBUILD arch_build/
+          cp src-tauri/target/release/bundle/deb/OptiTux_*_amd64.deb arch_build/
           docker run --rm -v $(pwd):/workspace -w /workspace/arch_build archlinux:latest bash -c "
             pacman -Sy --noconfirm --noprogressbar base-devel binutils sudo
             useradd -m builduser && chown -R builduser:builduser /workspace/arch_build
