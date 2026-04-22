@@ -58,7 +58,7 @@ jobs:
           flatpak install --user -y flathub org.gnome.Platform//45 org.gnome.Sdk//45
           
           flatpak-builder --user --repo=repo --force-clean build-dir optitux-gui.json
-          flatpak build-bundle repo OptiTux.flatpak optitux-gui
+          flatpak build-bundle repo OptiTux.flatpak com.sll.optitux-gui
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
