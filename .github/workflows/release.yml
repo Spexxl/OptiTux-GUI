@@ -43,7 +43,7 @@ jobs:
             pacman -Sy --noconfirm --noprogressbar base-devel binutils sudo
             useradd -m builduser && chown -R builduser:builduser /workspace/arch_build
             sudo -u builduser makepkg --noconfirm --nodeps
-            chown -R \$(id -u):\$(id -g) .
+            chown -R $(id -u):$(id -g) .
           "
           mv arch_build/*.pkg.tar.zst ./OptiTux-x86_64.pkg.tar.zst
 
