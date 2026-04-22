@@ -16,7 +16,7 @@ impl ProfileGenerator {
 
         let dxgi_override = if use_dlss_spoofing { "auto" } else { "false" };
 
-        Self::patch_ini(game_dir, dx11, dx12, vk, ffx_backend, dxgi_override, None)
+        Self::patch_ini(game_dir, dx11, dx12, vk, ffx_backend, dxgi_override, None, "nofg", "nofg")
     }
 
     pub fn update_ini_custom(
@@ -24,6 +24,8 @@ impl ProfileGenerator {
         upscaler: &str,
         use_dlss_spoofing: bool,
         enable_framegen: Option<bool>,
+        fg_input: &str,
+        fg_output: &str,
     ) -> Result<()> {
         let (dx11, dx12, vk, ffx_backend) = match upscaler {
             "fsr" => ("fsr31_12", "fsr31", "fsr31_12", "0"),
@@ -34,7 +36,7 @@ impl ProfileGenerator {
 
         let dxgi_override = if use_dlss_spoofing { "auto" } else { "false" };
 
-        Self::patch_ini(game_dir, dx11, dx12, vk, ffx_backend, dxgi_override, enable_framegen)
+        Self::patch_ini(game_dir, dx11, dx12, vk, ffx_backend, dxgi_override, enable_framegen, fg_input, fg_output)
     }
 
     fn patch_ini(
@@ -45,6 +47,8 @@ impl ProfileGenerator {
         ffx_backend: &str,
         dxgi_override: &str,
         enable_framegen: Option<bool>,
+        fg_input: &str,
+        fg_output: &str,
     ) -> Result<()> {
         let ini_path = game_dir.join("OptiScaler.ini");
         if !ini_path.exists() {
@@ -92,9 +96,9 @@ impl ProfileGenerator {
                     "framegen" => {
                         if let Some(true) = enable_framegen {
                             match key {
-                                "Enabled" => *line = "Enabled=true".to_string(),
-                                "FGInput" => *line = "FGInput=upscaler".to_string(),
-                                "FGOutput" => *line = "FGOutput=xefg".to_string(),
+                                "Enabled"  => *line = "Enabled=true".to_string(),
+                                "FGInput"  => *line = format!("FGInput={}", fg_input),
+                                "FGOutput" => *line = format!("FGOutput={}", fg_output),
                                 _ => {}
                             }
                         }

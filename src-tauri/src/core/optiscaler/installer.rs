@@ -33,6 +33,10 @@ macro_rules! define_injection_methods {
             pub fn all() -> Vec<Self> {
                 vec![$(Self::$variant),*]
             }
+
+            pub fn all_pairs() -> Vec<(&'static str, &'static str)> {
+                vec![$( ($slug, $filename) ),*]
+            }
         }
     }
 }
@@ -47,6 +51,44 @@ define_injection_methods! {
     Winhttp  => "winhttp.dll",  "winhttp";
 }
 
+macro_rules! define_string_enum {
+    ($name:ident, $($variant:ident => $slug:expr),* $(,)?) => {
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+        pub enum $name {
+            $($variant),*
+        }
+
+        impl $name {
+            pub fn as_str(&self) -> &'static str {
+                match self {
+                    $(Self::$variant => $slug),*
+                }
+            }
+
+            pub fn all_str() -> Vec<&'static str> {
+                vec![$($slug),*]
+            }
+        }
+    }
+}
+
+define_string_enum! {
+    FGInput,
+    Nukems   => "nukems",
+    Dlssg    => "dlssg",
+    Fsrfg    => "fsrfg",
+    Upscaler => "upscaler",
+    Fsrfg30  => "fsrfg30",
+    Nofg     => "nofg",
+}
+
+define_string_enum! {
+    FGOutput,
+    Nukems => "nukems",
+    Fsrfg  => "fsrfg",
+    Xefg   => "xefg",
+    Nofg   => "nofg",
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct InstallManifest {
@@ -57,7 +99,12 @@ pub struct InstallManifest {
 pub struct Installer;
 
 impl Installer {
-    pub fn install(game: &Game, version_dir: &Path, version_name: &str, injection: InjectionMethod) -> Result<()> {
+    pub fn install(
+        game: &Game,
+        version_dir: &Path,
+        version_name: &str,
+        injection: InjectionMethod,
+    ) -> Result<()> {
         let game_dir = Self::get_target_dir(game)?;
         let injection_dll = injection.as_str();
 
@@ -66,11 +113,13 @@ impl Installer {
 
         if injection_path.exists() {
             if !backup_dir.exists() {
-                fs::create_dir_all(&backup_dir).context("Failed to create OptiScalerBackup directory")?;
+                fs::create_dir_all(&backup_dir)
+                    .context("Failed to create OptiScalerBackup directory")?;
             }
             let backup_file = backup_dir.join(injection_dll);
             if !backup_file.exists() {
-                fs::copy(&injection_path, &backup_file).context("Failed to backup the original injection DLL")?;
+                fs::copy(&injection_path, &backup_file)
+                    .context("Failed to backup the original injection DLL")?;
             }
         }
 
@@ -82,9 +131,10 @@ impl Installer {
                 fs::create_dir_all(&target_path).ok();
             } else if entry.file_type().is_file() {
                 let file_name = entry.file_name().to_string_lossy().to_lowercase();
-                
+
                 if file_name == "optiscaler.dll" {
-                    fs::copy(entry.path(), &injection_path).context("Failed to copy OptiScaler as injection DLL")?;
+                    fs::copy(entry.path(), &injection_path)
+                        .context("Failed to copy OptiScaler as injection DLL")?;
                 } else if file_name != "setup_linux.sh" && file_name != "setup_windows.bat" {
                     fs::copy(entry.path(), &target_path).ok();
                 }
@@ -106,8 +156,9 @@ impl Installer {
     pub fn install_int8(game: &Game, int8_file_path: &Path) -> Result<()> {
         let game_dir = Self::get_target_dir(game)?;
         let target_path = game_dir.join("amd_fidelityfx_upscaler_dx12.dll");
-        
-        fs::copy(int8_file_path, &target_path).context("Failed to overlay INT8 DLL into Game directory")?;
+
+        fs::copy(int8_file_path, &target_path)
+            .context("Failed to overlay INT8 DLL into Game directory")?;
         Ok(())
     }
 
@@ -120,12 +171,14 @@ impl Installer {
         if manifest_path.exists() {
             let json = fs::read_to_string(&manifest_path)
                 .context("Failed to read optiscaler_manifest.json")?;
-            let manifest: InstallManifest = serde_json::from_str(&json)
-                .context("Failed to parse optiscaler_manifest.json")?;
+            let manifest: InstallManifest =
+                serde_json::from_str(&json).context("Failed to parse optiscaler_manifest.json")?;
 
             let dll_path = game_dir.join(&manifest.injection_dll);
             if dll_path.exists() {
-                let backup_file = game_dir.join("OptiScalerBackup").join(&manifest.injection_dll);
+                let backup_file = game_dir
+                    .join("OptiScalerBackup")
+                    .join(&manifest.injection_dll);
                 if backup_file.exists() {
                     if fs::copy(&backup_file, &dll_path).is_ok() {
                         let _ = fs::remove_file(&backup_file);
@@ -142,8 +195,13 @@ impl Installer {
         }
 
         let extra_files = [
-            "OptiScaler.ini", "OptiScaler.log", "fakenvapi.dll", "fakenvapi.ini",
-            "fakenvapi.log", "dlssg_to_fsr3_amd_is_better.dll", "dlssg_to_fsr3.log",
+            "OptiScaler.ini",
+            "OptiScaler.log",
+            "fakenvapi.dll",
+            "fakenvapi.ini",
+            "fakenvapi.log",
+            "dlssg_to_fsr3_amd_is_better.dll",
+            "dlssg_to_fsr3.log",
         ];
 
         if let Ok(entries) = fs::read_dir(&game_dir) {
@@ -158,7 +216,12 @@ impl Installer {
             }
         }
 
-        let extra_dirs = ["D3D12_Optiscaler", "DlssOverrides", "Licenses", "OptiScalerBackup"];
+        let extra_dirs = [
+            "D3D12_Optiscaler",
+            "DlssOverrides",
+            "Licenses",
+            "OptiScalerBackup",
+        ];
         for d in extra_dirs {
             let dir_path = game_dir.join(d);
             if dir_path.exists() {
@@ -167,15 +230,20 @@ impl Installer {
         }
 
         if !removed_any {
-            return Err(anyhow!("No OptiScaler files were found to remove in {:?}", game_dir));
+            return Err(anyhow!(
+                "No OptiScaler files were found to remove in {:?}",
+                game_dir
+            ));
         }
 
         Ok(())
     }
 
     pub fn is_installed(game: &Game) -> bool {
-        let Ok(dir) = Self::get_target_dir(game) else { return false; };
-        
+        let Ok(dir) = Self::get_target_dir(game) else {
+            return false;
+        };
+
         if dir.join("optiscaler_manifest.json").exists() {
             return true;
         }
@@ -225,14 +293,20 @@ impl Installer {
     {
         on_progress("starting", 0.0);
 
-        let gpu = GpuDetector::detect_gpus().into_iter().find(|g| g.is_primary);
-        let arch = gpu.map(|g| g.architecture).unwrap_or(GpuArchitecture::Unknown);
+        let gpu = GpuDetector::detect_gpus()
+            .into_iter()
+            .find(|g| g.is_primary);
+        let arch = gpu
+            .map(|g| g.architecture)
+            .unwrap_or(GpuArchitecture::Unknown);
 
         let needs_int8 = matches!(arch, GpuArchitecture::RDNA1_2_3);
         let injection = InjectionMethod::Dxgi;
 
         let downloaded_versions = OptiScalerManager::get_downloaded_versions();
-        let stable_folder = downloaded_versions.into_iter().find(|v| !v.to_lowercase().contains("db"));
+        let stable_folder = downloaded_versions
+            .into_iter()
+            .find(|v| !v.to_lowercase().contains("db"));
 
         let version_path = if let Some(folder_name) = stable_folder {
             on_progress("installing", 20.0);
@@ -277,7 +351,10 @@ impl Installer {
 
         let use_dlss_spoofing = matches!(
             arch,
-            GpuArchitecture::RDNA4 | GpuArchitecture::RDNA1_2_3 | GpuArchitecture::IntelArc | GpuArchitecture::GTX
+            GpuArchitecture::RDNA4
+                | GpuArchitecture::RDNA1_2_3
+                | GpuArchitecture::IntelArc
+                | GpuArchitecture::GTX
         );
 
         let game_dir = Self::get_target_dir(game)?;
@@ -304,6 +381,8 @@ impl Installer {
         enable_framegen: bool,
         is_mfg: bool,
         injection: InjectionMethod,
+        fg_input: &str,
+        fg_output: &str,
         on_progress: F,
     ) -> Result<()>
     where
@@ -328,7 +407,14 @@ impl Installer {
         let use_dlss_spoofing = upscaler != "dlss";
 
         let game_dir = Self::get_target_dir(game)?;
-        let _ = ProfileGenerator::update_ini_custom(&game_dir, upscaler, use_dlss_spoofing, if is_mfg { None } else { Some(enable_framegen) });
+        let _ = ProfileGenerator::update_ini_custom(
+            &game_dir,
+            upscaler,
+            use_dlss_spoofing,
+            if is_mfg { None } else { Some(enable_framegen) },
+            fg_input,
+            fg_output,
+        );
 
         if install_int8 {
             if !OptiScalerManager::is_int8_present() {
@@ -357,5 +443,4 @@ impl Installer {
         }
         Ok(PathBuf::from(&game.install_path))
     }
-
 }
