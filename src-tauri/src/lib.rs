@@ -5,7 +5,7 @@ use crate::core::game_scanner::ScannerManager;
 use crate::core::gpu_detector::{GpuDetector, GpuInfo};
 use crate::core::models::Game;
 use crate::core::optiscaler::github::{GitHubClient, Release};
-use crate::core::optiscaler::installer::Installer;
+use crate::core::optiscaler::installer::{Installer, InjectionMethod, FGInput, FGOutput};
 use crate::core::optiscaler::manager::OptiScalerManager;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
@@ -114,6 +114,24 @@ async fn get_downloaded_versions() -> Vec<String> {
 async fn remove_downloaded_version(folder_name: String) -> Result<(), String> {
     OptiScalerManager::remove_downloaded_version(&folder_name)
         .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn get_fg_inputs() -> Vec<&'static str> {
+    FGInput::all_str()
+}
+
+#[tauri::command]
+fn get_fg_outputs() -> Vec<&'static str> {
+    FGOutput::all_str()
+}
+
+#[tauri::command]
+fn get_injection_methods() -> Vec<[&'static str; 2]> {
+    InjectionMethod::all_pairs()
+        .into_iter()
+        .map(|(slug, filename)| [slug, filename])
+        .collect()
 }
 
 #[tauri::command]
@@ -271,8 +289,12 @@ async fn custom_install_optiscaler(
     install_int8: bool,
     enable_framegen: bool,
     is_mfg_version: bool,
+    injection_method: String,
+    fg_input: String,
+    fg_output: String,
 ) -> Result<(), String> {
-    Installer::custom_install(&game, &version_folder, &upscaler, install_int8, enable_framegen, is_mfg_version, |phase, percent| {
+    let injection = InjectionMethod::from_str(&injection_method);
+    Installer::custom_install(&game, &version_folder, &upscaler, install_int8, enable_framegen, is_mfg_version, injection, &fg_input, &fg_output, |phase, percent| {
         app.emit("custom-install-progress", QuickInstallProgress {
             phase: phase.to_string(),
             percent,
@@ -320,6 +342,9 @@ pub fn run() {
             quick_install_optiscaler,
             custom_install_optiscaler,
             open_url_cmd,
+            get_fg_inputs,
+            get_fg_outputs,
+            get_injection_methods,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

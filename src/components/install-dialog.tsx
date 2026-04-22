@@ -77,6 +77,12 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
   const [upscaler, setUpscaler] = useState("fsr");
   const [installInt8, setInstallInt8] = useState(false);
   const [enableFramegen, setEnableFramegen] = useState(false);
+  const [fgInput, setFgInput] = useState("nukems");
+  const [fgOutput, setFgOutput] = useState("nukems");
+  const [availableFgInputs, setAvailableFgInputs] = useState<string[]>([]);
+  const [availableFgOutputs, setAvailableFgOutputs] = useState<string[]>([]);
+  const [availableInjectionMethods, setAvailableInjectionMethods] = useState<[string, string][]>([]);
+  const [injectionMethod, setInjectionMethod] = useState("dxgi");
   const [installState, setInstallState] = useState<InstallState>("idle");
 
   const filteredReleases = allReleases.filter((r) => r.source === sourceTab);
@@ -123,15 +129,42 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
     } catch { }
   }, []);
 
+  const fetchFgOptions = useCallback(async () => {
+    try {
+      const inputs = await invoke<string[]>("get_fg_inputs");
+      const outputs = await invoke<string[]>("get_fg_outputs");
+      const methods = await invoke<[string, string][]>("get_injection_methods");
+      setAvailableFgInputs(inputs);
+      setAvailableFgOutputs(outputs);
+      setAvailableInjectionMethods(methods);
+    } catch { }
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       fetchReleases();
       fetchDownloaded();
       loadGpuDefaults();
+      fetchFgOptions();
       setInstallState("idle");
       setEnableFramegen(false);
+      setFgInput("nukems");
+      setFgOutput("nukems");
+      setInjectionMethod("dxgi");
     }
   }, [isOpen, fetchReleases, fetchDownloaded, loadGpuDefaults]);
+
+  const handleFgInputChange = (value: string) => {
+    setFgInput(value);
+    if (value === "nukems") setFgOutput("nukems");
+    else if (fgOutput === "nukems") setFgOutput("fsrfg");
+  };
+
+  const handleFgOutputChange = (value: string) => {
+    setFgOutput(value);
+    if (value === "nukems") setFgInput("nukems");
+    else if (fgInput === "nukems") setFgInput("fsrfg");
+  };
 
   useEffect(() => {
     if (filteredReleases.length > 0 && !filteredReleases.find((r) => r.tag_name === selectedVersion)) {
@@ -190,6 +223,9 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
         installInt8,
         enableFramegen: isMfgVersion ? false : enableFramegen,
         isMfgVersion,
+        injectionMethod,
+        fgInput,
+        fgOutput,
       });
       setInstallState("done");
       setTimeout(() => {
@@ -203,7 +239,7 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
     } finally {
       unlisten();
     }
-  }, [installState, selectedVersion, selectedAsset, game, upscaler, installInt8, enableFramegen, onInstallSuccess]);
+  }, [installState, selectedVersion, selectedAsset, game, upscaler, installInt8, enableFramegen, fgInput, fgOutput, injectionMethod, onInstallSuccess]);
 
   const handleClose = () => {
     if (installState !== "idle" && installState !== "done" && installState !== "error") return;
@@ -265,8 +301,8 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                 disabled={isWorking}
                 onClick={() => setSourceTab("stable")}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${sourceTab === "stable"
-                    ? "bg-primary/90 text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5 disabled:opacity-50"
+                  ? "bg-primary/90 text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/5 disabled:opacity-50"
                   }`}
               >
                 <Sparkles className="w-3 h-3" />
@@ -276,8 +312,8 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                 disabled={isWorking}
                 onClick={() => setSourceTab("db")}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${sourceTab === "db"
-                    ? "bg-primary/90 text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5 disabled:opacity-50"
+                  ? "bg-primary/90 text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/5 disabled:opacity-50"
                   }`}
               >
                 <Database className="w-3 h-3" />
@@ -347,11 +383,27 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
             </select>
           </div>
 
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {translations.injectionMethod}
+            </label>
+            <select
+              disabled={isWorking}
+              value={injectionMethod}
+              onChange={(e) => setInjectionMethod(e.target.value)}
+              className="w-full bg-white/4 border border-white/10 rounded-xl px-3 py-2.5 text-sm font-medium appearance-none cursor-pointer focus:outline-none focus:border-primary/50 focus:bg-primary/5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {availableInjectionMethods.map(([slug, filename]) => (
+                <option key={slug} value={slug}>{filename}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="space-y-3">
             <label
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${installInt8
-                  ? "border-primary/40 bg-primary/5"
-                  : "border-white/5 bg-white/2 hover:border-white/10"
+                ? "border-primary/40 bg-primary/5"
+                : "border-white/5 bg-white/2 hover:border-white/10"
                 } ${isWorking ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <input
@@ -362,8 +414,8 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                 className="sr-only"
               />
               <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200 shrink-0 ${installInt8
-                  ? "bg-primary border-primary"
-                  : "border-white/20"
+                ? "bg-primary border-primary"
+                : "border-white/20"
                 }`}>
                 {installInt8 && (
                   <svg className="w-2.5 h-2.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
@@ -376,8 +428,8 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
 
             <label
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all duration-200 ${isMfgVersion || enableFramegen
-                  ? "border-primary/40 bg-primary/5"
-                  : "border-white/5 bg-white/2 hover:border-white/10"
+                ? "border-primary/40 bg-primary/5"
+                : "border-white/5 bg-white/2 hover:border-white/10"
                 } ${(isWorking || isMfgVersion) ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
             >
               <input
@@ -388,8 +440,8 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                 className="sr-only"
               />
               <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200 shrink-0 ${isMfgVersion || enableFramegen
-                  ? "bg-primary border-primary"
-                  : "border-white/20"
+                ? "bg-primary border-primary"
+                : "border-white/20"
                 }`}>
                 {(isMfgVersion || enableFramegen) && (
                   <svg className="w-2.5 h-2.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
@@ -404,6 +456,41 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
                 )}
               </div>
             </label>
+
+            {(isMfgVersion || enableFramegen) && (
+              <div className="flex gap-2">
+                <div className="flex-1 space-y-1.5">
+                  <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-wider mb-1">
+                    Input
+                  </label>
+                  <select
+                    disabled={isWorking || isMfgVersion}
+                    value={fgInput}
+                    onChange={(e) => handleFgInputChange(e.target.value)}
+                    className="w-full bg-white/4 border border-white/10 rounded-xl px-3 py-2 text-sm font-medium appearance-none cursor-pointer focus:outline-none focus:border-primary/50 focus:bg-primary/5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {availableFgInputs.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1 space-y-1.5">
+                  <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-wider mb-1">
+                    Output
+                  </label>
+                  <select
+                    disabled={isWorking || isMfgVersion}
+                    value={fgOutput}
+                    onChange={(e) => handleFgOutputChange(e.target.value)}
+                    className="w-full bg-white/4 border border-white/10 rounded-xl px-3 py-2 text-sm font-medium appearance-none cursor-pointer focus:outline-none focus:border-primary/50 focus:bg-primary/5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {availableFgOutputs.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -422,10 +509,10 @@ export function InstallDialog({ isOpen, onClose, game, onInstallSuccess }: Insta
             onClick={handleInstall}
             disabled={isWorking || installState === "done" || !selectedVersion}
             className={`rounded-xl gap-2 font-semibold ${installState === "done"
-                ? "bg-green-500/90 hover:bg-green-500 text-white"
-                : installState === "error"
-                  ? "bg-red-500/80 hover:bg-red-500 text-white"
-                  : ""
+              ? "bg-green-500/90 hover:bg-green-500 text-white"
+              : installState === "error"
+                ? "bg-red-500/80 hover:bg-red-500 text-white"
+                : ""
               }`}
           >
             {getInstallButtonIcon()}
