@@ -1,5 +1,5 @@
 {
-  "app-id": "com.sll.optitux-gui",
+  "app-id": "optitux-gui",
   "runtime": "org.gnome.Platform",
   "runtime-version": "45",
   "sdk": "org.gnome.Sdk",
@@ -22,10 +22,10 @@
         "install -D optitux /app/bin/optitux",
         "mkdir -p /app/share/icons",
         "cp -r usr/share/icons/* /app/share/icons/",
-        "find /app/share/icons -name \"optitux_gui.png\" -execdir mv {} com.sll.optitux-gui.png \\;",
-        "sed -i 's/Icon=optitux_gui/Icon=com.sll.optitux-gui/' usr/share/applications/OptiTux.desktop",
+        "find /app/share/icons -name \"optitux_gui.png\" -execdir mv {} optitux-gui.png \\;",
+        "sed -i 's/Icon=optitux_gui/Icon=optitux-gui/' usr/share/applications/OptiTux.desktop",
         "sed -i 's/Exec=optitux_gui/Exec=optitux/' usr/share/applications/OptiTux.desktop",
-        "install -D usr/share/applications/OptiTux.desktop /app/share/applications/com.sll.optitux-gui.desktop"
+        "install -D usr/share/applications/OptiTux.desktop /app/share/applications/optitux-gui.desktop"
       ],
       "sources": [
         {
