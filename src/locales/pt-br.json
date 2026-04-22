@@ -35,6 +35,7 @@
     "upscalerXess": "XeSS (Intel)",
     "installInt8": "Instalar addon FSR4 INT8",
     "enableFramegen": "Habilitar Frame Generation",
+    "injectionMethod": "Nome da DLL",
     "install": "Instalar",
     "installing": "Instalando...",
     "downloading": "Baixando versão...",
