@@ -15,8 +15,8 @@
         "title": "OptiTux",
         "width": 1200,
         "height": 900,
-        "minWidth": 1200,
-        "minHeight": 900
+        "minWidth": 800,
+        "minHeight": 600
       }
     ],
     "security": {
