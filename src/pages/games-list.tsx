@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { GameCard, Game } from "@/components/game-card";
 import { ManualFoldersDialog } from "@/components/manual-folders-dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
 interface GpuInfo {
@@ -78,13 +78,13 @@ export function GamesList() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [games, searchTerm, platformFilter, onlyInstalled]);
 
-  const handleUninstallSuccess = (appId: string) => {
+  const handleUninstallSuccess = useCallback((appId: string) => {
     setGames((prev) =>
       prev.map((g) =>
         g.app_id === appId ? { ...g, is_optiscaler_installed: false } : g
       )
     );
-  };
+  }, []);
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden animate-in fade-in duration-500">

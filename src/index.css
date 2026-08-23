@@ -127,3 +127,9 @@
     @apply font-sans;
     }
 }
+
+/* Skip styling and painting game cards outside the scroll viewport. */
+.game-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 380px;
+}

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { memo, useState, useCallback } from "react";
 import { Sparkles, Download, Trash2, Check, Target, Loader2, CheckCircle2, FolderOpen, Pencil, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ interface GameCardProps {
 type UninstallState = "idle" | "loading" | "done" | "error";
 type QuickInstallPhase = "idle" | "fetching" | "downloading" | "downloading_int8" | "installing" | "done" | "error";
 
-export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCardProps) {
+export const GameCard = memo(function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCardProps) {
   const { t } = useLanguage();
   
   const platformDisplay = game.platform === "Custom" 
@@ -190,14 +190,15 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
 
   return (
     <div className="group relative flex flex-col space-y-3 w-full animate-in fade-in zoom-in-95 duration-300">
-      <div className="relative aspect-3/4 rounded-xl overflow-hidden bg-muted border border-border/50 shadow-lg flex flex-col">
+      <div className="game-card">
+        <div className="relative aspect-3/4 rounded-xl overflow-hidden bg-muted border border-border/50 shadow-lg flex flex-col">
         {displayUrl ? (
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-            style={{
-              backgroundImage: `url(${displayUrl})`,
-              backgroundColor: "#1a1a1a"
-            }}
+          <img
+            src={displayUrl}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
           <div className="absolute inset-0 bg-[#1a1a1a] flex flex-col items-center justify-center p-4 text-center transition-transform duration-500 group-hover:scale-110">
@@ -279,17 +280,18 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
         </div>
       </div>
 
-      <div className="space-y-2 px-1">
-        <h3 className="font-bold text-sm text-foreground truncate">
-          {game.name}
-        </h3>
+        <div className="space-y-2 px-1">
+          <h3 className="font-bold text-sm text-foreground truncate">
+            {game.name}
+          </h3>
 
-        <div className="flex flex-wrap gap-1.5">
-          {game.upscalars.map((tech) => (
-            <Badge key={tech} className={`text-[9px] font-extrabold px-1.5 py-0 rounded-sm border-none shadow-sm ${techBadgeStyles[tech] || "bg-zinc-500/10 text-zinc-500"}`}>
-              {tech}
-            </Badge>
-          ))}
+          <div className="flex flex-wrap gap-1.5">
+            {game.upscalars.map((tech) => (
+              <Badge key={tech} className={`text-[9px] font-extrabold px-1.5 py-0 rounded-sm border-none shadow-sm ${techBadgeStyles[tech] || "bg-zinc-500/10 text-zinc-500"}`}>
+                {tech}
+              </Badge>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -312,4 +314,4 @@ export function GameCard({ game, onUninstallSuccess, onInstallSuccess }: GameCar
       />
     </div>
   );
-}
+});
